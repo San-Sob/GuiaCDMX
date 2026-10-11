@@ -1,0 +1,2046 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>La guía de San — Restaurantes CDMX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{
+  --paper:#F4F5F3; --surface:#FFFFFF; --ink:#111A1C; --muted:#3D484A; --line:#C9CFCC; --line-soft:#E4E8E6;
+  --rosa:#B8005A; --rosa-soft:#FCE4EF; --jade:#09665A; --jade-soft:#DCF0EA; --sol:#8A5300; --sol-soft:#FFF0D2; --violeta:#5A3FC0; --violeta-soft:#ECE8FB;
+  --font:"Bricolage Grotesque", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --emoji:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;
+  color-scheme: light; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{height:100%;margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.45;display:grid;grid-template-rows:auto 1fr;overflow:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--rosa);outline-offset:2px}
+.ic{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.em{font-family:var(--emoji);line-height:1}
+
+header{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--surface)}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand .logo{width:38px;height:38px;border-radius:12px;background:var(--rosa);display:grid;place-items:center;font-size:22px;flex:none}
+.brand h1{margin:0;font-size:21px;font-weight:800;letter-spacing:-.02em;white-space:nowrap}
+.brand p{margin:0;color:var(--muted);font-size:13px;white-space:nowrap}
+.spacer{flex:1}
+.btn{display:inline-flex;align-items:center;gap:7px;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;cursor:pointer;font-weight:700;white-space:nowrap;text-decoration:none;color:var(--ink)}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--rosa);border-color:var(--rosa);color:#fff}
+.btn.small{padding:6px 12px;font-size:14px}
+.btn.danger{color:var(--rosa)}
+
+main{display:grid;grid-template-columns:400px 1fr;min-height:0}
+aside{display:flex;flex-direction:column;min-height:0;border-right:1px solid var(--line);background:var(--surface)}
+.scroll{overflow-y:auto;flex:1;min-height:0}
+
+/* filtros */
+.filters{padding:14px 16px 6px;display:grid;gap:14px}
+.searchbox{position:relative}
+.searchbox .ic{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.search{width:100%;padding:11px 14px 11px 40px;border:1.5px solid var(--line);border-radius:14px;background:var(--paper)}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);background:var(--paper);border-radius:14px;padding:4px;border:1.5px solid var(--line);gap:4px}
+.seg button{display:flex;align-items:center;justify-content:center;gap:6px;border:0;background:none;padding:8px 6px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:700;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.18)}
+.seg button[data-est="visitado"][aria-pressed="true"]{color:var(--rosa)}
+.seg button[data-est="pendiente"][aria-pressed="true"]{color:var(--jade)}
+.fgroup h3{margin:0 0 8px;font-size:13.5px;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:8px}
+.fgroup h3 .clear{margin-left:auto;border:0;background:none;color:var(--rosa);font-weight:700;cursor:pointer;font-size:13px;padding:0}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--line);border-radius:14px;background:var(--surface);cursor:pointer;text-align:left}
+.tile .em{font-size:26px}
+.tile strong{display:block;font-size:15px}
+.tile small{color:var(--muted);font-size:12.5px}
+.tile[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:#fff}
+.tile[aria-pressed="true"] small{color:#D6DCDA}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 11px 5px 8px;cursor:pointer;font-size:14px;font-weight:500;color:var(--ink)}
+.chip .em{font-size:17px}
+.chip .n{font-size:12px;color:var(--muted);font-weight:700}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.chip[aria-pressed="true"] .n{color:#D6DCDA}
+.chip.price{padding:5px 13px;font-weight:800;letter-spacing:.03em}
+.subchips{margin-top:8px;padding:8px;border-radius:12px;background:var(--paper);border:1px dashed var(--line)}
+.subchips .chip{font-size:13.5px}
+.zonesel{width:100%;padding:9px 10px;border:1.5px solid var(--line);border-radius:12px;background:var(--paper);font-size:14px}
+.resetbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 16px;border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);background:var(--paper);font-size:14px;font-weight:700;position:sticky;top:0;z-index:2}
+.resetbar button{border:0;background:none;color:var(--rosa);font-weight:700;cursor:pointer;display:none}
+.resetbar.dirty button{display:inline}
+
+/* modos */
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:12px 16px 0}
+.mode{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);cursor:pointer;text-align:left;font-weight:800;font-size:14.5px}
+.mode .em{font-size:20px}
+.mode small{display:block;font-weight:500;font-size:12px;color:var(--muted)}
+.mode[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.mode[aria-pressed="true"] small{color:#D6DCDA}
+.mode.disc[aria-pressed="true"]{background:var(--violeta);border-color:var(--violeta)}
+.discbanner{margin:12px 16px 0;padding:10px 12px;border-radius:12px;background:var(--violeta-soft);color:var(--violeta);font-size:13.5px;font-weight:600;display:flex;gap:8px;align-items:flex-start}
+.src{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:800;padding:2px 8px;border-radius:999px;background:var(--violeta-soft);color:var(--violeta);margin:3px 4px 0 0;white-space:nowrap}
+.src.michelin{background:#FDE7E7;color:#A3141B}
+.src.best{background:#FFF0D2;color:#7A4A00}
+.src.g{background:#EAF1FB;color:#1F4E8C}
+.av.disc{border:3px solid var(--violeta);background:var(--violeta-soft)}
+.av.disc .badge{background:var(--violeta)}
+/* lista */
+.list{padding:4px 0 12px}
+.item{display:grid;grid-template-columns:48px 1fr auto;gap:12px;align-items:center;padding:10px 16px;cursor:pointer;border:0;background:none;width:100%;text-align:left}
+.item:hover,.item.active{background:var(--paper)}
+.item.active{box-shadow:inset 4px 0 0 var(--rosa)}
+.item strong{display:block;font-weight:800;font-size:16px;line-height:1.2}
+.item small{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+.item .price{font-weight:800;color:var(--muted);font-size:13px}
+.av{position:relative;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-size:24px;background:var(--surface);border:3px solid var(--rosa)}
+.av.pend{border:3px dashed var(--jade);background:var(--jade-soft)}
+.av.nopin{border:3px dotted var(--muted);background:var(--paper)}
+.av .badge{position:absolute;right:-4px;bottom:-4px;width:18px;height:18px;border-radius:50%;background:var(--rosa);color:#fff;display:grid;place-items:center;border:2px solid #fff}
+.av .badge .ic{width:11px;height:11px;stroke-width:3.5}
+.av.pend .badge{background:var(--jade)}
+.fz{display:inline-flex;align-items:center;gap:3px;background:var(--sol-soft);color:var(--sol);border-radius:6px;padding:0 6px;font-size:12px;font-weight:700;margin-left:4px}
+.empty{padding:28px 20px;color:var(--muted)}
+.empty strong{color:var(--ink);display:block;font-size:17px;margin-bottom:6px}
+
+/* mapa y pines */
+.mapwrap{position:relative;min-height:0;height:100%}
+#map{position:absolute;inset:0}
+.leaflet-container{font-family:var(--font);background:var(--paper)}
+.leaflet-container a{color:var(--rosa)}
+.leaflet-bar a,.leaflet-bar a:hover{color:var(--ink);background:#fff}
+.leaflet-control-layers{color:var(--ink);background:#fff;font-size:14px;border:1px solid var(--line)!important}
+.leaflet-control-layers label{color:var(--ink);font-weight:500}
+.leaflet-control-attribution{color:#333!important;background:rgba(255,255,255,.9)!important;font-size:11px}
+.leaflet-control-attribution a{color:#333!important}
+.pinwrap{width:48px;height:48px;display:grid;place-items:center;cursor:pointer}
+.pin{position:relative;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:20px;background:#fff;border:3px solid var(--rosa);box-shadow:0 2px 6px rgba(0,0,0,.4);transition:transform .15s}
+.pin.pend{border:3px dashed var(--jade);background:var(--jade-soft)}
+.pin .badge{position:absolute;right:-5px;bottom:-5px;width:17px;height:17px;border-radius:50%;background:var(--rosa);color:#fff;display:grid;place-items:center;border:2px solid #fff}
+.pin.pend .badge{background:var(--jade)}
+.pin .badge .ic{width:10px;height:10px;stroke-width:3.5}
+.pinwrap:hover .pin{transform:scale(1.15)}
+.pin.disc{border:3px solid var(--violeta);background:var(--violeta-soft)}
+.pin.disc .badge{background:var(--violeta)}
+.pin.disc.sel{box-shadow:0 0 0 5px rgba(90,63,192,.3),0 2px 6px rgba(0,0,0,.4)}
+.pin.sel{transform:scale(1.35);box-shadow:0 0 0 5px rgba(184,0,90,.28),0 2px 6px rgba(0,0,0,.4)}
+.pin.pend.sel{box-shadow:0 0 0 5px rgba(9,102,90,.28),0 2px 6px rgba(0,0,0,.4)}
+.leaflet-tooltip.lbl{background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:8px;font-weight:800;font-size:12.5px;padding:2px 8px;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.leaflet-tooltip.lbl::before{display:none}
+.picking .leaflet-marker-pane .pinwrap{opacity:.3;pointer-events:none}
+.picking .leaflet-tooltip-pane{display:none}
+.pickpin{position:relative;width:32px;height:32px;margin:2px 0 0 2px;background:var(--rosa);border:3px solid #fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:-2px 2px 6px rgba(0,0,0,.4);cursor:grab}
+.pickpin::after{content:"";position:absolute;inset:8px;border-radius:50%;background:#fff}
+.pickbar{position:absolute;z-index:900;left:50%;transform:translateX(-50%);top:12px;width:max-content;max-width:calc(100% - 24px);background:var(--ink);color:#fff;padding:10px 12px 10px 16px;border-radius:16px;display:none;gap:10px;align-items:center;font-size:14px;flex-wrap:wrap;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.picking .pickbar{display:flex}
+.pickbar button{border:1.5px solid #fff;color:#fff;background:none;border-radius:999px;padding:6px 14px;cursor:pointer;font-weight:700}
+.pickbar button.ok{background:#fff;color:var(--ink)}
+.maplegend{position:absolute;z-index:800;left:10px;bottom:24px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 10px;display:grid;gap:6px;font-size:13px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.maplegend span{display:flex;align-items:center;gap:8px}
+.maplegend .pin{width:24px;height:24px;font-size:12px;box-shadow:none}
+.maplegend .pin .badge{width:13px;height:13px;right:-4px;bottom:-4px}
+.maplegend .pin .badge .ic{width:8px;height:8px}
+.mapnotice{position:absolute;inset:0;display:none;align-items:center;justify-content:center;padding:24px;text-align:center;z-index:700;background:var(--paper)}
+.mapnotice div{max-width:380px}
+.mapnotice strong{display:block;font-size:18px;margin-bottom:6px}
+.mapnotice.show{display:flex}
+
+/* ficha */
+.sheet{position:absolute;z-index:950;right:16px;top:16px;bottom:16px;width:min(420px,calc(100% - 32px));background:var(--surface);border-radius:22px;box-shadow:0 10px 40px rgba(0,0,0,.25);display:none;flex-direction:column;overflow:hidden}
+.sheet.open{display:flex}
+.sheet-head{padding:18px 20px 14px;position:relative;background:var(--rosa-soft)}
+.sheet-head.pend{background:var(--jade-soft)}
+.sheet-head.disc{background:var(--violeta-soft)}
+.pill.disc{background:var(--violeta);border-color:var(--violeta);color:#fff}
+.porque{margin:0;font-size:15px;line-height:1.5}
+.srclist{display:grid;gap:6px;margin-top:4px}
+.srcrow{display:flex;gap:10px;align-items:center;padding:8px 10px;border-radius:12px;background:var(--paper)}
+.srcrow .em{font-size:20px}
+.srcrow strong{display:block;font-size:14px}
+.srcrow span.d{font-size:13px;color:var(--muted)}
+.btn.violet{background:var(--violeta);border-color:var(--violeta);color:#fff}
+.hero{display:flex;gap:8px;margin-bottom:10px}
+.hero span{width:52px;height:52px;border-radius:16px;background:#fff;display:grid;place-items:center;font-size:30px;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.sheet-head h2{margin:0 40px 8px 0;font-size:27px;line-height:1.1;font-weight:800;letter-spacing:-.02em}
+.close{position:absolute;right:14px;top:14px;width:36px;height:36px;border-radius:50%;border:1.5px solid var(--line);background:#fff;cursor:pointer;display:grid;place-items:center}
+.meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700;padding:4px 10px;border-radius:999px;background:#fff;border:1px solid var(--line)}
+.pill.vis{background:var(--rosa);border-color:var(--rosa);color:#fff}
+.pill.pend{background:var(--jade);border-color:var(--jade);color:#fff}
+.pill .ic{width:14px;height:14px;stroke-width:3}
+.actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(68px,1fr));gap:6px;padding:12px 14px;border-bottom:1px solid var(--line-soft)}
+.act{display:flex;flex-direction:column;align-items:center;gap:5px;padding:9px 4px;border-radius:14px;background:var(--paper);color:var(--ink);text-decoration:none;font-size:12.5px;font-weight:700;border:1.5px solid transparent}
+.act:hover{border-color:var(--ink)}
+.act .ic{width:22px;height:22px;color:var(--rosa)}
+.sheet-body{overflow-y:auto;padding:4px 20px 16px}
+.cz-list{display:grid;gap:8px;padding:14px 0;border-bottom:1px solid var(--line-soft)}
+.cz{display:grid;grid-template-columns:44px 1fr;gap:10px;align-items:start}
+.cz > .em{width:44px;height:44px;border-radius:12px;background:var(--paper);display:grid;place-items:center;font-size:24px}
+.cz strong{font-size:16px}
+.cz .o{font-size:12.5px;color:var(--muted);font-weight:700;margin-left:6px}
+.cz .chips{margin-top:4px}
+.cz .chip{cursor:default;font-size:13px;padding:3px 10px 3px 7px}
+.fusion{display:flex;align-items:center;gap:8px;background:var(--sol-soft);color:var(--sol);border-radius:12px;padding:8px 12px;font-weight:700;font-size:14px}
+.field{display:grid;grid-template-columns:24px 1fr;gap:10px;padding:12px 0;border-bottom:1px solid var(--line-soft)}
+.field:last-child{border-bottom:0}
+.field > .ic{color:var(--muted);margin-top:2px}
+.field h3{margin:0 0 2px;font-size:12.5px;font-weight:700;color:var(--muted)}
+.field p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.field a{color:var(--rosa);font-weight:700;overflow-wrap:anywhere}
+.field .note{font-size:13px;color:var(--muted)}
+.stale{color:var(--rosa)!important;font-weight:700}
+.sec{padding:14px 0;border-bottom:1px solid var(--line-soft)}
+.sec > h3{margin:0 0 10px;font-size:15px;font-weight:800;display:flex;align-items:center;gap:8px}
+.dish{display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:start;padding:8px 0}
+.dish + .dish{border-top:1px dashed var(--line-soft)}
+.dish > .em{width:40px;height:40px;border-radius:12px;background:var(--sol-soft);display:grid;place-items:center;font-size:22px}
+.sec.fav{background:var(--rosa-soft);margin:12px -20px 0;padding:14px 20px;border-bottom:0}
+.sec.fav .dish > .em{background:#fff}
+.sec.fav h3{color:var(--rosa)}
+.fav-empty{margin:0;font-size:14px;color:var(--muted)}
+.dish strong{display:block;font-size:15px;line-height:1.25}
+.dish span.d{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.dish .pr{font-weight:800;font-size:14px;white-space:nowrap}
+.menus{display:flex;flex-wrap:wrap;gap:6px}
+.menus a{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:12px;background:var(--rosa-soft);color:var(--rosa);font-weight:800;font-size:14px;text-decoration:none}
+.menus a .ic{width:16px;height:16px}
+.small-note{font-size:12.5px;color:var(--muted);margin:8px 0 0}
+.pill.mo{background:var(--paper)}
+.optrow{display:flex;flex-wrap:wrap;gap:6px}
+.edit-hint{font-size:12.5px;color:var(--muted);font-weight:400}
+.sheet-foot{display:flex;gap:8px;padding:12px 20px;border-top:1px solid var(--line-soft)}
+
+/* diálogos */
+dialog{border:0;border-radius:22px;padding:0;width:min(600px,calc(100% - 20px));max-height:calc(100% - 20px);background:var(--surface);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+dialog::backdrop{background:rgba(17,26,28,.5)}
+.dlg{display:flex;flex-direction:column;max-height:calc(100vh - 20px)}
+.dlg-head{padding:18px 20px;border-bottom:1px solid var(--line-soft)}
+.dlg-head h2{margin:0;font-size:22px;font-weight:800}
+.dlg-body{overflow-y:auto;padding:16px 20px;display:grid;gap:14px}
+.dlg-foot{display:flex;gap:8px;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--line-soft);flex-wrap:wrap}
+label{display:grid;gap:4px;font-size:13px;color:var(--muted);font-weight:700}
+label input,label select,label textarea{padding:10px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--paper);font-size:15px;color:var(--ink);font-weight:400}
+label textarea{min-height:70px;resize:vertical}
+input::placeholder,textarea::placeholder{color:#6A7577}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.box{background:var(--paper);border-radius:16px;padding:14px;display:grid;gap:10px}
+.box > h3{margin:0;font-size:15px;font-weight:800;display:flex;align-items:center;gap:8px}
+.box p.hint{margin:0;font-size:13px;color:var(--muted)}
+.box h4{margin:4px 0 6px;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.addrow{display:flex;gap:6px;margin-top:6px}
+.addrow input{flex:1;min-width:0;padding:7px 10px;border:1.5px solid var(--line);border-radius:10px;background:#fff;font-size:14px}
+.addrow button{border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:6px 10px;cursor:pointer;font-weight:700;display:flex;align-items:center;gap:4px}
+.subed{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:10px 12px}
+.subed h4{margin:0 0 8px;color:var(--ink);font-size:15px}
+.check{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--ink);font-weight:700;background:var(--sol-soft);border-radius:12px;padding:10px 12px;cursor:pointer}
+.check input{width:20px;height:20px;accent-color:var(--sol)}
+.menu-list{display:grid;gap:8px;font-size:14px}
+.menu-list button{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;text-align:left;padding:12px 14px;border:1.5px solid var(--line);border-radius:14px;background:var(--paper);cursor:pointer}
+.menu-list button .ic{width:22px;height:22px;color:var(--rosa)}
+.menu-list strong{display:block}
+.menu-list span{color:var(--muted);font-size:13px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;z-index:2000;font-size:14px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1}
+.mtabs{display:none}
+
+@media (max-width: 760px){
+  header{padding:8px 12px}
+  .brand p{display:none}
+  .brand h1{font-size:18px}
+  #btnMenu .lbl{display:none}
+  main{grid-template-columns:1fr;position:relative}
+  aside{position:absolute;inset:0;z-index:800;border-right:0}
+  body:not(.show-list) aside{display:none}
+  .mtabs{display:flex;position:absolute;z-index:850;left:50%;transform:translateX(-50%);bottom:18px;background:#fff;border-radius:999px;padding:4px;box-shadow:0 4px 16px rgba(0,0,0,.25)}
+  .show-list .mtabs{position:fixed}
+  .mtabs button{display:flex;align-items:center;gap:6px;border:0;background:none;padding:10px 18px;border-radius:999px;font-weight:800;cursor:pointer}
+  .mtabs button[aria-pressed="true"]{background:var(--ink);color:#fff}
+  .picking .mtabs{display:none}
+  .maplegend{bottom:auto;top:10px;left:10px}
+  .sheet{left:0;right:0;bottom:0;top:auto;width:100%;max-height:80%;border-radius:22px 22px 0 0;padding-bottom:env(safe-area-inset-bottom,0px)}
+  .two{grid-template-columns:1fr}
+  .list{padding-bottom:80px}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo em" aria-hidden="true">🍽️</div><div><h1>La guía de San</h1><p>Restaurantes de la Ciudad de México</p></div></div>
+  <div class="spacer"></div>
+  <button class="btn" id="btnMenu" aria-label="Datos"><span data-ic="data"></span><span class="lbl">Datos</span></button>
+  <button class="btn primary" id="btnAdd"><span data-ic="plus"></span>Agregar</button>
+</header>
+
+<main>
+  <aside>
+    <div class="scroll" id="aside">
+      <div class="modes" id="modes"></div>
+      <div id="discBanner"></div>
+      <div class="filters" id="filters"></div>
+      <div class="resetbar" id="resetbar"><span id="count"></span><button id="btnReset">Quitar filtros</button></div>
+      <div class="list" id="list"></div>
+    </div>
+  </aside>
+  <div class="mapwrap">
+    <div id="map"></div>
+    <div class="maplegend" aria-hidden="true">
+      <span><i class="pin"><b class="em">🍽️</b><i class="badge" data-ic="check"></i></i>Visitado</span>
+      <span><i class="pin pend"><b class="em">🍽️</b><i class="badge" data-ic="clock"></i></i>Pendiente</span>
+      <span id="lgDisc" style="display:none"><i class="pin disc"><b class="em">🍽️</b><i class="badge" data-ic="compass"></i></i>Por descubrir</span>
+    </div>
+    <div class="mapnotice" id="mapNotice"><div><strong>El mapa no pudo cargarse</strong><span id="mapNoticeTxt">Este visor no permite cargar el mapa. Descarga el archivo y ábrelo directamente en Chrome, Safari o Edge.</span></div></div>
+    <div class="pickbar" id="pickbar"><span>Arrastra el pin o toca el mapa para moverlo</span><button id="pickCancel">Cancelar</button><button class="ok" id="pickOk">Usar esta ubicación</button></div>
+    <div class="mtabs" role="group" aria-label="Vista">
+      <button data-view="map" aria-pressed="true"><span data-ic="map"></span>Mapa</button>
+      <button data-view="list" aria-pressed="false"><span data-ic="list"></span>Lista</button>
+    </div>
+    <section class="sheet" id="sheet" aria-live="polite"></section>
+  </div>
+</main>
+
+<dialog id="dlgEdit"><form method="dialog" class="dlg" id="formEdit">
+  <div class="dlg-head"><h2 id="editTitle">Agregar lugar</h2></div>
+  <div class="dlg-body">
+    <label>Nombre<input name="nombre" required></label>
+    <div class="two">
+      <label>Estado<select name="estado"><option value="pendiente">⏱ Pendiente por visitar</option><option value="visitado">✓ Ya lo visité</option></select></label>
+      <label>Precio<select name="precio"><option value="">Sin definir</option><option value="1">$ Económico</option><option value="2">$$ Moderado</option><option value="3">$$$ Caro</option><option value="4">$$$$ Muy caro</option></select></label>
+    </div>
+    <div class="box" id="czEditor">
+      <h3><span class="em">🍴</span>Tipo de cocina</h3>
+      <p class="hint">Toca una o varias. Un restaurante puede ser nacional e internacional a la vez.</p>
+      <div><h4><span class="em">🌮</span>Nacional</h4><div class="chips" id="czNac"></div></div>
+      <div><h4><span class="em">🌍</span>Internacional</h4><div class="chips" id="czInt"></div>
+        <div class="addrow"><input id="newPais" placeholder="Otra nacionalidad (ej. Etíope)"><button type="button" id="addPais"><span data-ic="plus"></span>Agregar</button></div>
+      </div>
+      <div id="subEditors" style="display:grid;gap:8px"></div>
+      <label class="check"><input type="checkbox" id="chkFusion"><span class="em">🔀</span>Es cocina de fusión</label>
+    </div>
+    <label>Zona o colonia<input name="zona" list="dlZona" placeholder="Roma Norte, Coyoacán…"></label>
+    <div class="box">
+      <h3><span data-ic="pin"></span>Ubicación</h3>
+      <p class="hint" id="locStatus"></p>
+      <label>Enlace de Google Maps<input name="gmaps" placeholder="Pega aquí el enlace para tomar la ubicación"></label>
+      <button type="button" class="btn small" id="btnPick" style="justify-self:start"><span data-ic="pin"></span>Elegir en el mapa</button>
+    </div>
+    <label>Dirección<input name="direccion"></label>
+    <div class="two">
+      <label>Teléfono<input name="telefono" type="tel"></label>
+      <label>Página web<input name="web" type="url" placeholder="https://"></label>
+    </div>
+    <div class="box">
+      <h3><span class="em">📖</span>Menú y platillos</h3>
+      <label>Menús <span class="edit-hint">Uno por línea: nombre | enlace</span><textarea id="tMenus" placeholder="Desayuno | https://…&#10;Comida | https://…"></textarea></label>
+      <label>Menú revisado el<input name="menuFecha" type="date"></label>
+      <label><span>❤️ Favoritos de San <span class="edit-hint">Lo que tú pediste y te gustó. Uno por línea: ícono nombre | comentario | precio</span></span><textarea id="tFav" style="min-height:90px" placeholder="🌮 Taco de escamoles | El mejor que he probado | 145"></textarea></label>
+      <label><span>⭐ Recomendaciones encontradas <span class="edit-hint">De menús, reseñas y artículos. Mismo formato</span></span><textarea id="tDest" style="min-height:110px" placeholder="🫓 Tlayuda | Con chapulines | 365"></textarea></label>
+      <label>Fuente de la información<input name="fuente" placeholder="ej. página oficial, Rappi, reseñas"></label>
+      <label>Precio por persona<input name="precioPersona" placeholder="ej. $350 a $500 sin bebidas"></label>
+      <div><h4><span class="em">🕒</span>Momento del día</h4><div class="chips" id="moEd"></div></div>
+      <div><h4><span class="em">🥗</span>Opciones</h4><div class="chips" id="opEd"></div></div>
+    </div>
+    <label>Cómo reservar<input name="reserva" placeholder="OpenTable, WhatsApp, sin reserva, llegar temprano…"></label>
+    <label>Notas<textarea name="notas" placeholder="Qué pedir, con quién ir, horarios…"></textarea></label>
+  </div>
+  <div class="dlg-foot">
+    <button type="button" class="btn" id="editCancel">Cancelar</button>
+    <button type="submit" class="btn primary" value="save"><span data-ic="check"></span>Guardar lugar</button>
+  </div>
+</form></dialog>
+
+<dialog id="dlgMenu"><div class="dlg">
+  <div class="dlg-head"><h2>Tus datos</h2></div>
+  <div class="dlg-body">
+    <div class="menu-list">
+      <button id="mImportTakeout"><span data-ic="upload"></span><span><strong>Importar lista de Google Takeout</strong><span>El CSV de tus listas guardadas. Los lugares sin coordenadas quedan marcados para ubicarlos.</span></span></button>
+      <button id="mImportJson"><span data-ic="upload"></span><span><strong>Restaurar respaldo o datos de Claude</strong><span>Archivo .json con tu guía completa. Reemplaza lo que hay ahora.</span></span></button>
+      <button id="mExportMyMaps"><span data-ic="map"></span><span><strong>Exportar para Google My Maps</strong><span>CSV con cocinas, latitud y longitud, listo para importar como capa.</span></span></button>
+      <button id="mExportJson"><span data-ic="download"></span><span><strong>Descargar respaldo</strong><span>Guarda tu guía en un .json. Hazlo de vez en cuando.</span></span></button>
+      <button id="mClear"><span data-ic="trash"></span><span><strong>Borrar todo</strong><span>Deja la guía vacía en este navegador.</span></span></button>
+    </div>
+    <p style="margin:0;font-size:13px;color:var(--muted)">La guía se guarda en este navegador. Para usarla en otro dispositivo, descarga el respaldo y restáuralo allá.</p>
+  </div>
+  <div class="dlg-foot"><button class="btn" id="menuClose">Cerrar</button></div>
+</div></dialog>
+
+<dialog id="dlgImport"><form method="dialog" class="dlg">
+  <div class="dlg-head"><h2>¿Qué lista es?</h2></div>
+  <div class="dlg-body">
+    <p style="margin:0" id="importInfo"></p>
+    <label>Marcar estos lugares como<select id="importEstado"><option value="visitado">✓ Visitados</option><option value="pendiente">⏱ Pendientes por visitar</option></select></label>
+  </div>
+  <div class="dlg-foot">
+    <button type="button" class="btn" id="importCancel">Cancelar</button>
+    <button type="submit" class="btn primary" id="importGo">Importar</button>
+  </div>
+</form></dialog>
+
+<input type="file" id="fileCsv" accept=".csv,text/csv" hidden>
+<input type="file" id="fileJson" accept=".json,application/json" hidden>
+<datalist id="dlZona"></datalist>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+const KEY = 'guia-cdmx-v4';
+const SEED = [{"id": "g1", "nombre": "Jowong", "estado": "visitado", "precio": 3, "zona": "Condesa", "direccion": "C. de Pachuca 51, Condesa", "telefono": "+52 56 2544 9746", "web": "http://jowong.mx/", "menuFecha": "", "reserva": "", "notas": "Bib Gourmand de la Guía Michelin.", "gmaps": "https://www.google.com/maps/place/Jowong/data=!4m2!3m1!1s0x85d1ffefce767dcf:0xe4daa53078519269", "lat": 19.4167279, "lng": -99.1769747, "cocinas": [{"pais": "Coreana", "sub": []}, {"pais": "Mexicana", "sub": ["Contemporánea"]}], "fusion": true, "destacados": [{"e": "🥬", "n": "Banchan", "d": "Kimchi y pepinos aplastados para empezar", "p": ""}, {"e": "🥩", "n": "Festín de BBQ de prime rib", "d": "Ideal para grupos, llena la mesa", "p": ""}, {"e": "🍙", "n": "Gimbap", "d": "Arroz con alga, daikon, perilla, espinaca, hongos y omelette", "p": ""}, {"e": "🐟", "n": "Crudo de salmón", "d": "", "p": ""}, {"e": "🌽", "n": "Esquites", "d": "", "p": ""}, {"e": "🍌", "n": "Pastel de plátano", "d": "Con crema de plátano y helado de café", "p": ""}], "fuente": "Guía Michelin y reseñas de Google", "momentos": ["comida", "cena"]}, {"id": "g2", "nombre": "Mi Compa Chava Marisquería", "estado": "visitado", "precio": 3, "zona": "Roma Norte", "direccion": "Zacatecas 172, Roma Norte", "telefono": "", "web": "https://www.instagram.com/micompachava", "menuFecha": "", "reserva": "Lista de espera en la puerta, suele haber fila", "notas": "", "gmaps": "https://www.google.com/maps/place/Mi+Compa+Chava+Marisquer%C3%ADa/data=!4m2!3m1!1s0x85d1ff976e20f4d1:0x2087fc553413be6a", "lat": 19.41521, "lng": -99.1621346, "cocinas": [{"pais": "Mexicana", "sub": ["Mariscos"]}], "fusion": false, "momentos": ["comida"]}, {"id": "g3", "nombre": "El Mekong", "estado": "visitado", "precio": 2, "zona": "Hipódromo Condesa", "direccion": "Av. Tamaulipas 145, Hipódromo Condesa", "telefono": "+52 55 4373 9685", "web": "http://www.instagram.com/elmekong", "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/El+Mekong+%E1%9E%91%E1%9E%93%E1%9F%92%E1%9E%9B%E1%9F%81%E1%9E%98%E1%9F%81%E1%9E%82%E1%9E%84%E1%9F%92%E1%9E%82/data=!4m2!3m1!1s0x85d1ff0074baeca7:0xea92db7da3f4c31b", "lat": 19.4094682, "lng": -99.1760728, "cocinas": [{"pais": "Camboyana", "sub": []}], "fusion": false, "momentos": ["comida", "cena"]}, {"id": "g4", "nombre": "Las Costillas de la Condesa", "estado": "visitado", "precio": 2, "zona": "Condesa", "direccion": "Juan Escutia 104, Condesa", "telefono": "+52 55 5286 2700", "web": "http://fb.me/LasCostillasDeLaCondesa", "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Las+Costillas+De+La+Condesa/data=!4m2!3m1!1s0x85d1ff44e65d949b:0x6125739399b1d69", "lat": 19.4158786, "lng": -99.1771734, "cocinas": [{"pais": "Mexicana", "sub": ["Tacos"]}], "fusion": false, "momentos": ["comida", "cena"]}, {"id": "g5", "nombre": "Ahumados Pelican", "estado": "visitado", "precio": 2, "zona": "Santa María la Ribera", "direccion": "Jaime Torres Bodet 204, Santa María la Ribera", "telefono": "", "web": "https://ahumadospelican.com/", "menuFecha": "", "reserva": "Por Instagram del restaurante (según Chilango)", "notas": "", "gmaps": "https://www.google.com/maps/place/Ahumados+Pelican/data=!4m2!3m1!1s0x85d1f9d852368875:0x1f3b5b631f06bfe0", "lat": 19.4518145, "lng": -99.1573938, "cocinas": [{"pais": "Estadounidense", "sub": ["BBQ / ahumados"]}], "fusion": false, "destacados": [{"e": "🥩", "n": "Brisket", "d": "Por kilo o en sándwich", "p": ""}, {"e": "🍖", "n": "Costillas y short rib", "d": "", "p": ""}, {"e": "🐷", "n": "Barriga coreana", "d": "Ahumada, con salsa de chiles fermentados", "p": ""}, {"e": "🧀", "n": "Mac and cheese", "d": "", "p": ""}, {"e": "🌭", "n": "Sampler de salchichas", "d": "", "p": ""}, {"e": "🍓", "n": "Fresas con crema", "d": "Con crumble de nuez", "p": ""}, {"e": "🍌", "n": "Plátano ahumado", "d": "Con mascarpone y miel", "p": ""}], "fuente": "Time Out, Food & Pleasure y Chilango", "momentos": ["comida", "cena"]}, {"id": "g6", "nombre": "El Picha (mariscos estilo Sinaloa)", "estado": "pendiente", "precio": 2, "zona": "Del Valle", "direccion": "Miguel Laurent 605, Del Valle Sur", "telefono": "+52 56 1515 4278", "web": "http://www.elpichamariscos.com.mx/", "menuFecha": "", "reserva": "Lista de espera, suele haber fila", "notas": "Máximo 2 horas por mesa, según reseñas.", "gmaps": "https://www.google.com/maps/place/El+Picha+Mariscos+estilo+Sinaloa/data=!4m2!3m1!1s0x85d1ff004b7d683b:0xb063968298dfed59", "lat": 19.3751308, "lng": -99.1652282, "cocinas": [{"pais": "Mexicana", "sub": ["Mariscos"]}], "fusion": false, "destacados": [{"e": "🌮", "n": "Taco Ensenada de camarón", "d": "", "p": ""}, {"e": "🍲", "n": "Caldo de camarón de cortesía", "d": "Lo sirven al llegar", "p": ""}], "fuente": "reseñas de Google", "momentos": ["comida"]}, {"id": "g7", "nombre": "Pizza del Perro Negro", "estado": "visitado", "precio": 2, "zona": "Roma Norte", "direccion": "Parque España 3, Roma Norte", "telefono": "+52 55 5351 7401", "web": "http://www.muertealapizzafalsa.com/", "menuFecha": "", "reserva": "", "notas": "Tamaños chica, mediana y monster; también por rebanada.", "gmaps": "https://www.google.com/maps/place/Pizza+del+Perro+Negro/data=!4m2!3m1!1s0x85d1ff4708dff395:0xadd02c0f0b57b9de", "lat": 19.4166461, "lng": -99.16977, "cocinas": [{"pais": "Italiana", "sub": ["Pizza"]}], "fusion": false, "destacados": [{"e": "🌽", "n": "Desquitada", "d": "Esquites con epazote, mayonesa y chile piquín", "p": ""}, {"e": "🧀", "n": "María Julia", "d": "Quesos manchego y oaxaca con epazote", "p": ""}, {"e": "🍔", "n": "Pizza de hamburguesa", "d": "", "p": ""}, {"e": "🍗", "n": "Tennessee BBQ", "d": "Pollo en salsa BBQ", "p": ""}, {"e": "☀️", "n": "Rising Sun", "d": "", "p": ""}], "fuente": "Food & Pleasure, Chilango, Time Out y reseñas de Google", "momentos": ["comida", "cena"]}, {"id": "g8", "nombre": "Frëims", "estado": "visitado", "precio": 2, "zona": "Hipódromo", "direccion": "Ámsterdam 62, Hipódromo", "telefono": "+52 55 9130 8449", "web": "http://freims.mx/", "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Fr%C3%ABims/data=!4m2!3m1!1s0x85d1ff473a8251cd:0xc5cced2c3d926e22", "lat": 19.4146451, "lng": -99.169617, "cocinas": [{"pais": "Mexicana", "sub": ["Desayunos"]}], "fusion": false, "destacados": [{"e": "🍳", "n": "Chilaquiles", "d": "", "p": ""}, {"e": "🥐", "n": "Chocolatín con almendras", "d": "", "p": ""}, {"e": "🍓", "n": "Plato de fruta", "d": "", "p": ""}, {"e": "☕", "n": "Latte", "d": "", "p": ""}], "fuente": "reseñas de Google", "momentos": ["desayuno", "comida"]}, {"id": "g9", "nombre": "Mog Bistro", "estado": "visitado", "precio": 2, "zona": "Roma Norte", "direccion": "Frontera 168, Roma Norte", "telefono": "+52 55 5264 1629", "web": "https://facebook.com/Mogbistro/", "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Mog+Bistro/data=!4m2!3m1!1s0x85d1ff25335c4a8d:0x133a09f957353d28", "lat": 19.4162998, "lng": -99.155061, "cocinas": [{"pais": "Panasiática", "sub": ["Fideos", "Sushi", "Dim sum"]}], "fusion": false, "momentos": ["comida", "cena"]}, {"id": "g10", "nombre": "Nagaoka", "estado": "visitado", "precio": 2, "zona": "Nápoles", "direccion": "Arkansas 38, Nápoles", "telefono": "+52 55 5543 9530", "web": "", "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Nagaoka/data=!4m2!3m1!1s0x85d1ff711511ae7b:0xdd24531e9612bae9", "lat": 19.3915588, "lng": -99.1747521, "cocinas": [{"pais": "Japonesa", "sub": ["Casera / teishoku", "Sushi / nigiri"]}], "fusion": false, "momentos": ["comida", "cena"]}, {"id": "g11", "nombre": "Sente", "estado": "visitado", "precio": 3, "zona": "Condesa", "direccion": "Av. Mazatlán 81, Condesa", "telefono": "", "web": "", "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Sente/data=!4m2!3m1!1s0x85d1ff00587012eb:0x8e327df52d136bb1", "lat": 19.4145347, "lng": -99.1771959, "cocinas": [{"pais": "De autor", "sub": ["Menú de temporada"]}], "fusion": false, "momentos": ["comida", "cena"]}, {"id": "g12", "nombre": "Momiji", "estado": "visitado", "precio": "", "zona": "Lomas de Chapultepec", "direccion": "Sierra Madre 216, Lomas de Chapultepec", "telefono": "+52 55 5500 6107", "web": "https://momiji.mx/", "menuFecha": "", "reserva": "", "notas": "Chefs Cristina Hanhausen y Raymundo Pérez. Abre de miércoles a domingo.", "gmaps": "https://www.google.com/maps/place/Momiji/data=!4m2!3m1!1s0x85d2016299407225:0x614b4fd4dc84a173", "lat": 19.4241096, "lng": -99.2074536, "cocinas": [{"pais": "Japonesa", "sub": ["Ramen", "Izakaya"]}], "fusion": true, "destacados": [{"e": "🍜", "n": "Ramen", "d": "Caldo de 18 horas, su plato insignia", "p": ""}, {"e": "🥟", "n": "Gyozas", "d": "Tienen dos tipos", "p": ""}, {"e": "🍇", "n": "Ensalada de uva y pepino", "d": "", "p": ""}, {"e": "🍖", "n": "Terrina de chamorro confitado", "d": "", "p": ""}, {"e": "🍗", "n": "Pollo frito Momiji", "d": "", "p": ""}, {"e": "🍰", "n": "Tiramisú", "d": "De la chef Cristina Hanhausen", "p": ""}], "fuente": "Food & Pleasure, Chic Magazine y reseñas de Google", "momentos": ["comida", "cena"]}, {"id": "g13", "nombre": "Makan", "estado": "visitado", "precio": "", "zona": "Centro (San Rafael)", "direccion": "Emilio Dondé 68B, Centro", "telefono": "+52 55 4765 9626", "web": "http://www.makan.mx/", "menuFecha": "", "reserva": "", "notas": "Platos para compartir; conviene ir en grupo.", "gmaps": "https://www.google.com/maps/place/Makan/data=!4m2!3m1!1s0x85d1ff49dd1a3c8f:0xaad80010c54aa382", "lat": 19.4311119, "lng": -99.1512335, "cocinas": [{"pais": "Singapurense", "sub": ["Hawker", "Laksa"]}], "fusion": false, "destacados": [{"e": "🍜", "n": "Laksa", "d": "Fideos de arroz en curry de coco con camarón", "p": ""}, {"e": "🐷", "n": "Pork belly crujiente", "d": "", "p": ""}, {"e": "🐔", "n": "Pollo Makan", "d": "", "p": ""}, {"e": "🦆", "n": "Pato rostizado", "d": "", "p": ""}, {"e": "🐌", "n": "Escargots XO", "d": "Con pan de leche", "p": ""}, {"e": "🍞", "n": "Pan tostado con mermelada de coco", "d": "", "p": ""}], "fuente": "Chilango, The Infatuation, Local.mx y reseñas de Google", "momentos": ["comida", "cena"]}, {"id": "g14", "nombre": "Canton Mexicali Condesa", "estado": "visitado", "precio": 2, "zona": "Hipódromo", "direccion": "Av. Álvaro Obregón 264, Hipódromo", "telefono": "+52 55 1701 1479", "web": "https://www.cantonmexicali.com/", "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Canton+Mexicali+%E5%BB%A3%E6%9D%B1%E5%A2%A8%E8%A5%BF%E5%8A%A0%E5%88%A9/data=!4m2!3m1!1s0x85d1ff8cad92027f:0x5c6cc10b834e50fa", "lat": 19.4165048, "lng": -99.167653, "cocinas": [{"pais": "China", "sub": ["Cantonesa"]}, {"pais": "Mexicana", "sub": []}], "fusion": true, "destacados": [{"e": "🦐", "n": "Camarones chipotle", "d": "Capeados, con aceite de ajonjolí y limón", "p": ""}, {"e": "🍚", "n": "Arroz frito mixto", "d": "Camarón, carnitas coloradas, huevo y aguacate", "p": ""}, {"e": "🥒", "n": "Ensalada de pepinos", "d": "Con soya, limón, ajonjolí, ajo y aceite de chile", "p": ""}, {"e": "🥩", "n": "Carne Mexicali", "d": "", "p": ""}, {"e": "🍜", "n": "Chow mein Mexicali", "d": "", "p": ""}, {"e": "🥟", "n": "Rollo de camarón con queso", "d": "", "p": ""}], "fuente": "Chic Magazine y reseñas de Google", "momentos": ["comida", "cena"]}, {"id": "g15", "nombre": "Niza", "estado": "visitado", "precio": 2, "zona": "Jardines del Pedregal", "direccion": "Cráter 709, Jardines del Pedregal", "telefono": "+52 55 5568 3163", "web": "http://www.niza.mx/", "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Niza/data=!4m2!3m1!1s0x85cdffeb6205288b:0x3145070e2ff5f8d2", "lat": 19.3173848, "lng": -99.2103148, "cocinas": [{"pais": "Mexicana", "sub": ["Tortas", "Desayunos"]}], "fusion": false, "destacados": [{"e": "🥪", "n": "Torta de cecina", "d": "", "p": ""}, {"e": "🥩", "n": "Pepito Niza", "d": "", "p": ""}, {"e": "🥖", "n": "Baguettes", "d": "Jamón serrano o milanesa con fondue", "p": ""}, {"e": "🍳", "n": "Chilaquiles con pollo", "d": "", "p": ""}], "fuente": "Chilango y reseñas de Google", "momentos": ["desayuno", "comida", "cena"]}, {"id": "g16", "nombre": "Cook Ramen Zona Rosa", "estado": "visitado", "precio": 2, "zona": "Juárez (Zona Rosa)", "direccion": "Amberes 33, Juárez", "telefono": "", "web": "https://www.facebook.com/cookramenonline", "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Cook+Ramen+Zona+Rosa/data=!4m2!3m1!1s0x85d1ff39bfee2391:0xfb4043309152428a", "lat": 19.4260264, "lng": -99.1657251, "cocinas": [{"pais": "Coreana", "sub": ["Ramyeon", "Kimbap"]}], "fusion": false, "momentos": ["comida", "cena"]}, {"id": "g17", "nombre": "Murakami", "estado": "visitado", "precio": 2, "zona": "Polanco", "direccion": "Torcuato Tasso 324, Polanco", "telefono": "+52 55 6499 7688", "web": "https://flow.page/murakami", "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Murakami/data=!4m2!3m1!1s0x85d1f8acbbbaa701:0xc6fccd3519b410ff", "lat": 19.4321069, "lng": -99.1833127, "cocinas": [{"pais": "Japonesa", "sub": ["Sushi / nigiri", "Casera / teishoku"]}], "fusion": false, "destacados": [{"e": "🐟", "n": "Sashimi de salmón", "d": "", "p": ""}, {"e": "🍛", "n": "Katsudon", "d": "Chuleta empanizada con huevo", "p": ""}, {"e": "🥗", "n": "Poke", "d": "2x1 de 1 a 6 pm, según reseñas", "p": ""}, {"e": "🍗", "n": "Karaage", "d": "", "p": ""}], "fuente": "reseñas de Google", "momentos": ["comida", "cena"]}, {"id": "g18", "nombre": "Deigo Sushi Insurgentes", "estado": "visitado", "precio": 2, "zona": "Del Valle", "direccion": "Av. Insurgentes Sur 724, Del Valle", "telefono": "", "web": "https://deigosushi.mx/", "menuFecha": "", "reserva": "OpenTable", "notas": "Barra de 14 lugares; la cuenta sube según los cortes que pidas.", "gmaps": "https://www.google.com/maps/place/Deigo+Sushi+Insurgentes/data=!4m2!3m1!1s0x85d1ff35461e93f1:0xd93d98739c770b90", "lat": 19.3929114, "lng": -99.1722335, "cocinas": [{"pais": "Japonesa", "sub": ["Sushi / nigiri", "Ramen"]}], "fusion": false, "destacados": [{"e": "🍣", "n": "Nigiri de chutoro y otoro", "d": "Atún aleta azul de Ensenada", "p": ""}, {"e": "🍣", "n": "Nigiri de uni", "d": "Erizo de Ensenada", "p": ""}, {"e": "🐟", "n": "Hamachi y saba", "d": "Pescado traído de Japón", "p": ""}, {"e": "🍜", "n": "Ramen", "d": "", "p": ""}], "fuente": "OpenTable, Time Out y reseñas de Google", "momentos": ["comida", "cena"]}, {"id": "g19", "nombre": "Kiin Thai-Viet Eatery", "estado": "visitado", "precio": 2, "zona": "Roma Norte", "direccion": "Orizaba 219, Roma Norte", "telefono": "+52 55 7095 7421", "web": "https://spark.adobe.com/page/cXUBVPfmWE2sm/", "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Kiin+Thai-Viet+Eatery/data=!4m2!3m1!1s0x85d1ff926f3ce577:0x8cb1216b09ae4ce6", "lat": 19.4119958, "lng": -99.1583526, "cocinas": [{"pais": "Tailandesa", "sub": []}, {"pais": "Vietnamita", "sub": []}], "fusion": false, "destacados": [{"e": "🍛", "n": "Curry verde", "d": "", "p": ""}, {"e": "🥞", "n": "Banh xeo", "d": "", "p": ""}, {"e": "🍜", "n": "Pad thai", "d": "", "p": ""}], "fuente": "reseñas de Google", "momentos": ["comida", "cena"]}, {"id": "g20", "nombre": "Somsaa", "estado": "visitado", "precio": 3, "zona": "Roma Norte", "direccion": "Orizaba 219, Roma Norte", "telefono": "+52 55 2580 7251", "web": "http://linktr.ee/somsaamx", "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Restaurante+Somsaa/data=!4m2!3m1!1s0x85d1ff21161b3061:0xc82fafa8d6d60120", "lat": 19.411974, "lng": -99.1584263, "cocinas": [{"pais": "Tailandesa", "sub": []}], "fusion": false, "destacados": [{"e": "🦐", "n": "Camarones en salsa de tamarindo", "d": "", "p": ""}, {"e": "🍚", "n": "Arroz frito con mariscos", "d": "", "p": ""}, {"e": "🍢", "n": "Nem lui", "d": "Brochetas vietnamitas", "p": ""}], "fuente": "reseñas de Google", "momentos": ["comida", "cena"]}, {"id": "g21", "nombre": "Bao Bao Taiwanese Eatery", "estado": "visitado", "precio": 2, "zona": "Roma Norte", "direccion": "Guanajuato 202, Roma Norte", "telefono": "+52 55 6271 4744", "web": "https://www.bao-bao.mx/", "menuFecha": "2026-10-11", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Bao+Bao+Taiwanese+Eatery/data=!4m2!3m1!1s0x85d1fffd0db460f3:0x45d57d21140765f5", "lat": 19.4158912, "lng": -99.1635402, "cocinas": [{"pais": "Taiwanesa", "sub": ["Bao", "Dumplings"]}], "fusion": false, "destacados": [{"e": "🥟", "n": "Gua bao", "d": "Pork belly braseado, cacahuate, mostaza encurtida y cilantro", "p": "115"}, {"e": "🦆", "n": "Bao de pato ahumado en té", "d": "Con hoisin, pepino y cilantro", "p": "135"}, {"e": "🥩", "n": "Bao de costilla a la pimienta", "d": "", "p": "145"}, {"e": "🍗", "n": "Bao de pollo frito", "d": "Mayo picante y daikon encurtido", "p": "110"}, {"e": "🍜", "n": "Fideos dan dan", "d": "", "p": ""}, {"e": "🍡", "n": "Mochis de cacahuate y ajonjolí negro", "d": "", "p": "90"}], "fuente": "Uber Eats (precios de la app, pueden variar en el restaurante) y reseñas de Google", "menus": [{"t": "Menú en Uber Eats", "u": "https://www.ubereats.com/mx/store/bao-bao-taiwanese-eatery-roma/ZEvrLc3FTwypo53bC9aACg"}], "momentos": ["comida", "cena"]}, {"id": "g22", "nombre": "Tacos de Armando", "estado": "visitado", "precio": 2, "zona": "Cuauhtémoc", "direccion": "Río Nilo 84, Cuauhtémoc", "telefono": "+52 55 2486 5755", "web": "https://www.tacosdearmando.com/", "menuFecha": "2026-10-11", "reserva": "", "notas": "Taquería sonorense de Hermosillo, salió en Las Crónicas del Taco de Netflix.", "gmaps": "https://www.google.com/maps/place/Tacos+de+Armando/data=!4m2!3m1!1s0x85d1ff7c2b066443:0x409771072bec9ab4", "lat": 19.426781, "lng": -99.1706859, "cocinas": [{"pais": "Mexicana", "sub": ["Tacos"]}], "fusion": false, "destacados": [{"e": "🌮", "n": "Taco de Armando", "d": "Carne asada al carbón, el clásico", "p": ""}, {"e": "🥓", "n": "Taco especial de chicharrón", "d": "De top sirloin", "p": ""}, {"e": "🍖", "n": "Taco de costilla rib", "d": "", "p": ""}, {"e": "🐷", "n": "Taco de papada", "d": "", "p": ""}, {"e": "🍬", "n": "Taco caramelo", "d": "", "p": ""}, {"e": "🍮", "n": "Coyota de dulce de leche", "d": "", "p": ""}], "fuente": "Rappi, Chic Magazine y reseñas de Google", "menus": [{"t": "Menú en Rappi", "u": "https://www.rappi.com.mx/restaurantes/1930133050"}], "momentos": ["comida", "cena"]}, {"id": "g23", "nombre": "Fonda 99.99", "estado": "visitado", "precio": 2, "zona": "Crédito Constructor", "direccion": "Hera 38, Crédito Constructor", "telefono": "+52 55 5559 8762", "web": "https://www.instagram.com/fonda99_cdmx", "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Fonda+99.99/data=!4m2!3m1!1s0x85d1ff9bd646a447:0x418427adde3f7199", "lat": 19.364764, "lng": -99.1804623, "cocinas": [{"pais": "Mexicana", "sub": ["Yucateca"]}], "fusion": false, "momentos": ["comida"]}, {"id": "g24", "nombre": "Choza", "estado": "visitado", "precio": 3, "zona": "Roma Norte", "direccion": "Monterrey 194 06700 Ciudad de México, CMX México", "telefono": "", "web": "", "menuFecha": "", "reserva": "Sin reservación, solo llegar (walk-in). Abre fines de semana.", "notas": "10/10", "gmaps": "https://www.google.com/maps/place/CHOZA/data=!4m2!3m1!1s0x85d1ffe58dc4418d:0xc62b8b290e4b8425", "cocinas": [{"pais": "Tailandesa", "sub": ["Street food"]}, {"pais": "Mexicana", "sub": []}], "fusion": true, "lat": 19.4136174, "lng": -99.1629327, "momentos": []}, {"id": "g25", "nombre": "Galanga", "estado": "visitado", "precio": "", "zona": "Roma Norte", "direccion": "Monterrey 204, Roma Norte", "telefono": "+52 55 6550 4492", "web": "", "menuFecha": "", "reserva": "", "notas": "10/10", "gmaps": "https://www.google.com/maps/place/Galanga/data=!4m2!3m1!1s0x85d1ff396ba9a1db:0x91199bb05783edb6", "lat": 19.4129992, "lng": -99.1626813, "cocinas": [{"pais": "Tailandesa", "sub": ["Curry"]}], "fusion": false, "momentos": ["comida", "cena"]}, {"id": "g26", "nombre": "NADEFO", "estado": "visitado", "precio": 2, "zona": "Juárez (Zona Rosa)", "direccion": "Liverpool 183, Juárez", "telefono": "+52 55 5525 0351", "web": "https://www.facebook.com/NadefoMX/", "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/NADEFO/data=!4m2!3m1!1s0x85d1ff365a09bcb3:0x23aa6adc138fef24", "lat": 19.4233056, "lng": -99.1665034, "cocinas": [{"pais": "Coreana", "sub": ["BBQ coreano"]}], "fusion": false, "momentos": ["comida", "cena"]}, {"id": "g27", "nombre": "NUDO", "estado": "pendiente", "precio": 2, "zona": "Roma Norte", "direccion": "Tonalá 187, Roma Norte", "telefono": "", "web": "https://www.instagram.com/nudo.ramen.boba", "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/NUDO/data=!4m2!3m1!1s0x85d1ff001f125863:0xa50e523a996d2700", "lat": 19.4123338, "lng": -99.1613844, "cocinas": [{"pais": "Panasiática", "sub": ["Fideos"]}], "fusion": false, "momentos": ["comida", "cena"]}, {"id": "g28", "nombre": "Ramen Sairi", "estado": "pendiente", "precio": 2, "zona": "Hipódromo", "direccion": "Alfonso Reyes 139, Hipódromo", "telefono": "+52 55 5943 5348", "web": "https://sairiramen.blogspot.com/2020/07/menu-de-ramen.html", "menuFecha": "", "reserva": "", "notas": "Ramen (Bruno)\nTiene una tiendita japonesa adentro.", "gmaps": "https://www.google.com/maps/place/Ramen+Sairi/data=!4m2!3m1!1s0x85d1ff7464291307:0x8658975aa8d66b08", "lat": 19.408393, "lng": -99.1765078, "cocinas": [{"pais": "Japonesa", "sub": ["Ramen"]}], "fusion": false, "destacados": [{"e": "🍜", "n": "Miso ramen", "d": "", "p": ""}, {"e": "🍙", "n": "Onigiri de spam", "d": "", "p": ""}, {"e": "🍗", "n": "Karaage", "d": "", "p": ""}, {"e": "🐙", "n": "Takoyaki", "d": "", "p": ""}], "fuente": "reseñas de Google", "momentos": ["comida", "cena"]}, {"id": "g29", "nombre": "Wan Wan Sakaba", "estado": "pendiente", "precio": 2, "zona": "Juárez", "direccion": "Londres 209, Juárez", "telefono": "+52 55 5514 4324", "web": "https://flow.page/wanwan", "menuFecha": "", "reserva": "", "notas": "Japonés - Ramen\nPide lugar en la barra para la experiencia de izakaya.", "gmaps": "https://www.google.com/maps/place/WANWAN+SAKABA/data=!4m2!3m1!1s0x85d1ff49d84b782b:0x260fd6263b90d58d", "lat": 19.423724, "lng": -99.167947, "cocinas": [{"pais": "Japonesa", "sub": ["Izakaya", "Sushi / nigiri", "Ramen"]}], "fusion": false, "destacados": [{"e": "🍱", "n": "Teishoku", "d": "Comida corrida japonesa con sopa, arroz y té", "p": ""}, {"e": "🍜", "n": "Tan tan men", "d": "", "p": ""}, {"e": "🐷", "n": "Tonkatsu", "d": "Cerdo empanizado, también en sando", "p": ""}, {"e": "🍛", "n": "Curry de cerdo", "d": "", "p": ""}, {"e": "🍣", "n": "Donburi de pescado fresco", "d": "", "p": ""}], "fuente": "Time Out, Travesías y Quién", "momentos": ["comida", "cena"]}, {"id": "n7iagdw7", "nombre": "Tetetlán", "estado": "visitado", "precio": 2, "zona": "Jardines del Pedregal", "gmaps": "https://maps.app.goo.gl/kTzg5h7kdxFT2zas8", "direccion": "Av. de Las Fuentes 180 - B, Jardines del Pedregal, Álvaro Obregón, 01900 Ciudad de México, CDMX", "telefono": "+52 55 5668 5335", "web": "https://tetetlan.com/home/restaurante/", "menuFecha": "2026-10-11", "reserva": "Formulario en su página web, al 55 5668 5335 o a reservaciones@tetetlan.com", "notas": "Junto a Casa Pedregal de Luis Barragán; piso de cristal sobre roca volcánica. Más del 70% de ingredientes orgánicos.", "cocinas": [{"pais": "Mexicana", "sub": ["Contemporánea", "Desayunos", "Antojitos"]}, {"pais": "Italiana", "sub": ["Pizza", "Pasta"]}], "fusion": false, "lat": 19.3286011, "lng": -99.2047964, "menus": [{"t": "Desayuno", "u": "https://tetetlan.com/home/menus-desayuno/"}, {"t": "Comida", "u": "https://tetetlan.com/home/menu-comida/"}, {"t": "Cena", "u": "https://tetetlan.com/home/menu-cena/"}, {"t": "Bebidas y coctelería", "u": "https://tetetlan.com/home/menu-cocteleria/"}, {"t": "Café, cacao y té", "u": "https://tetetlan.com/home/menu-de-cafeteria/"}], "momentos": ["desayuno", "comida", "cena"], "opciones": ["vegetariano", "vegano"], "precioPersona": "Desayuno aprox. $300 a $450; comida o cena aprox. $500 a $800, sin bebidas (estimado con su menú)", "destacados": [{"e": "🫓", "n": "Tlayuda Alfonsina", "d": "Frijol, longaniza, tasajo, chapulín, nopales, mole y queso", "p": "365"}, {"e": "🌮", "n": "Taco Tetetlán", "d": "Escamoles, hoja santa, serrano, epazote y aguacate", "p": "145"}, {"e": "🦗", "n": "Santa Hoja", "d": "Quesillo y chapulín entre hoja santa", "p": "195"}, {"e": "🌽", "n": "Huitlacoche rostizado", "d": "En mazorca con purés de piña, manzana y holandesa", "p": "180"}, {"e": "🦐", "n": "Taco Gobernador", "d": "Camarón, chile mixe, chipotle y quelite", "p": "175"}, {"e": "🍳", "n": "Huevos Lalo", "d": "Orgánicos revueltos con escamoles y salsa verde (desayuno)", "p": "330"}, {"e": "🍵", "n": "Pan francés de matcha", "d": "Con helado de temporada (desayuno)", "p": "210"}], "fuente": "Página oficial de Tetetlán"}, {"id": "n1", "nombre": "Al Andalus San Ángel", "estado": "visitado", "cocinas": [{"pais": "Libanesa", "sub": []}], "fusion": false, "precio": 2, "zona": "San Ángel", "direccion": "Av. Insurgentes Sur 2475 piso 1, San Ángel", "telefono": "+52 55 9180 7725", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Al+Andalus/data=!4m2!3m1!1s0x85d20115ad6baceb:0x77f855f9c2022cf0", "lat": 19.3392912, "lng": -99.1907778, "momentos": ["desayuno", "comida", "cena"], "opciones": ["vegetariano"], "destacados": [], "favoritos": []}, {"id": "n2", "nombre": "Dr. Pizza Juárez", "estado": "visitado", "cocinas": [{"pais": "Italiana", "sub": ["Pizza"]}], "fusion": false, "precio": 2, "zona": "Juárez", "direccion": "Lucerna 70B, Juárez", "telefono": "+52 55 2121 7486", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Dr.+Pizza/data=!4m2!3m1!1s0x85d1ff562d900969:0x25255d5bb7cb0d4c", "lat": 19.4300784, "lng": -99.1570282, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n3", "nombre": "Dr. Pizza Nápoles", "estado": "visitado", "cocinas": [{"pais": "Italiana", "sub": ["Pizza"]}], "fusion": false, "precio": 2, "zona": "Nápoles", "direccion": "Georgia 46, Nápoles", "telefono": "+52 55 9368 5817", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Dr.+Pizza/data=!4m2!3m1!1s0x85d1ff79b9f32163:0x180665ac2f89724d", "lat": 19.3895193, "lng": -99.1752079, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n4", "nombre": "Dr. Pizza Condesa", "estado": "visitado", "cocinas": [{"pais": "Italiana", "sub": ["Pizza"]}], "fusion": false, "precio": 2, "zona": "Hipódromo", "direccion": "Plaza Popocatépetl 41, Hipódromo", "telefono": "+52 55 9386 3133", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Dr.+Pizza/data=!4m2!3m1!1s0x85d1ff0178515a0f:0xe736594f719f2747", "lat": 19.4151893, "lng": -99.1679559, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n5", "nombre": "La Cocina del Bizco", "estado": "visitado", "cocinas": [{"pais": "Española", "sub": ["Tapas", "Paella"]}], "fusion": false, "precio": "", "zona": "Hipódromo", "direccion": "Ometusco 1, Hipódromo", "telefono": "+52 55 6430 3960", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/La+Cocina+del+Bizco/data=!4m2!3m1!1s0x85d1ff0000f03b53:0x3315b5b8246ad3ca", "lat": 19.4092583, "lng": -99.1728472, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n6", "nombre": "El Remolkito del Sirloin (Periférico)", "estado": "visitado", "cocinas": [{"pais": "Mexicana", "sub": ["Tacos"]}], "fusion": false, "precio": 2, "zona": "Coyoacán", "direccion": "Anillo Periférico 5460, Olímpica, Coyoacán", "telefono": "+52 55 4809 2211", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "El original. Tacos de sirloin al trompo; no toman reservación y suele haber espera.", "gmaps": "https://www.google.com/maps/place/El+Remolkito+del+Sirloin/data=!4m2!3m1!1s0x85ce0042ac614893:0xc7b2f7853385556a", "lat": 19.3023303, "lng": -99.1673369, "momentos": ["comida", "cena"], "opciones": [], "destacados": [{"e": "🌮", "n": "Tacos de sirloin al trompo", "d": "", "p": ""}, {"e": "🧀", "n": "Gringa de sirloin", "d": "", "p": ""}, {"e": "🧀", "n": "Chicharrón de queso", "d": "", "p": ""}], "favoritos": [], "fuente": "Culinary Backstreets y reseñas de Google"}, {"id": "n7", "nombre": "Daruma Cuicuilco", "estado": "visitado", "cocinas": [{"pais": "Japonesa", "sub": ["Teppanyaki", "Sushi / nigiri"]}], "fusion": false, "precio": 3, "zona": "Tlalpan", "direccion": "Av. San Fernando 649, Tlalpan", "telefono": "+52 55 5665 5284", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Daruma+Cuicuilco/data=!4m2!3m1!1s0x85ce007c7872078b:0x7e00d677b7747603", "lat": 19.2978358, "lng": -99.180841, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n8", "nombre": "La Casa del Pan Papalotl", "estado": "visitado", "cocinas": [{"pais": "Mexicana", "sub": ["Desayunos"]}], "fusion": false, "precio": 2, "zona": "Tlalpan", "direccion": "Av. San Fernando 765, Tlalpan", "telefono": "+52 55 5528 2041", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "Restaurante vegetariano.", "gmaps": "https://www.google.com/maps/place/La+Casa+del+Pan+Papalotl/data=!4m2!3m1!1s0x85ce007bfcb3ad47:0x4816b1e084366576", "lat": 19.2960588, "lng": -99.1840637, "momentos": ["desayuno", "comida"], "opciones": ["vegetariano", "vegano"], "destacados": [], "favoritos": []}, {"id": "n9", "nombre": "La Esquina del Chilaquil", "estado": "visitado", "cocinas": [{"pais": "Mexicana", "sub": ["Tortas", "Desayunos"]}], "fusion": false, "precio": 1, "zona": "Hipódromo", "direccion": "Alfonso Reyes 139, Hipódromo", "telefono": "+52 55 7544 4723", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "Puesto de tortas de chilaquil; abre de 8 a 12 y se hace fila.", "gmaps": "https://www.google.com/maps/place/La+Esquina+Del+Chilaquil/data=!4m2!3m1!1s0x85d1ff428f61a6a3:0xec757c64e0f05944", "lat": 19.4083759, "lng": -99.1765627, "momentos": ["desayuno"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n10", "nombre": "Taquería Orinoco Roma Norte", "estado": "visitado", "cocinas": [{"pais": "Mexicana", "sub": ["Tacos"]}], "fusion": false, "precio": 2, "zona": "Roma Norte", "direccion": "Av. Álvaro Obregón 100, Roma Norte", "telefono": "+52 55 5584 0845", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "Tacos estilo regio; abre hasta la madrugada.", "gmaps": "https://www.google.com/maps/place/Taquer%C3%ADa+Orinoco+(+Roma+Norte+)/data=!4m2!3m1!1s0x85d1ff39ac485d43:0xb6e59ed30ce65ec7", "lat": 19.418174, "lng": -99.1591691, "momentos": ["comida", "cena"], "opciones": [], "destacados": [{"e": "🥓", "n": "Taco de chicharrón", "d": "", "p": ""}, {"e": "🌮", "n": "Trompo (pastor)", "d": "", "p": ""}, {"e": "🥩", "n": "Taco de res", "d": "", "p": ""}], "favoritos": [], "fuente": "reseñas de Google"}, {"id": "n11", "nombre": "Gruta Ehden", "estado": "visitado", "cocinas": [{"pais": "Libanesa", "sub": []}], "fusion": false, "precio": 2, "zona": "Florida", "direccion": "Pino 69, Florida", "telefono": "+52 55 5661 3863", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/GRUTA+EHDEN/data=!4m2!3m1!1s0x85d1ff92e2bc10cf:0xeadb049600c422f", "lat": 19.3626739, "lng": -99.1761815, "momentos": ["desayuno", "comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n12", "nombre": "El Remolkito del Sirloin Del Valle", "estado": "visitado", "cocinas": [{"pais": "Mexicana", "sub": ["Tacos"]}], "fusion": false, "precio": 2, "zona": "Del Valle", "direccion": "J. Enrique Pestalozzi 1242, Del Valle", "telefono": "+52 55 2713 3358", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/El+Remolkito+del+Sirloin+Del+Valle/data=!4m2!3m1!1s0x85d1ff00545991e7:0x7a47589b9c21b6b6", "lat": 19.377788, "lng": -99.1614643, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n13", "nombre": "Hunan Reforma", "estado": "visitado", "cocinas": [{"pais": "China", "sub": ["Cantonesa"]}], "fusion": false, "precio": 4, "zona": "Lomas de Chapultepec", "direccion": "Paseo de la Reforma 2210, Lomas de Virreyes", "telefono": "+52 55 5596 5011", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "Famoso por su pato Pekín preparado en la mesa.", "gmaps": "https://www.google.com/maps/place/Hunan+Reforma/data=!4m2!3m1!1s0x85d201975bdf80f7:0x4ed24afff52a9515", "lat": 19.4059292, "lng": -99.2268551, "momentos": ["comida", "cena"], "opciones": [], "destacados": [{"e": "🦆", "n": "Pato Pekín", "d": "Preparado en la mesa, en tacos", "p": ""}, {"e": "🥟", "n": "Dumplings", "d": "", "p": ""}], "favoritos": [], "fuente": "reseñas de Google"}, {"id": "n14", "nombre": "Estiatorio Nostos Lomas", "estado": "visitado", "cocinas": [{"pais": "Griega", "sub": []}], "fusion": false, "precio": 4, "zona": "Lomas de Chapultepec", "direccion": "Monte Athos 415, Lomas de Chapultepec", "telefono": "+52 55 8438 1350", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Estiatorio+Nostos+(Lomas)/data=!4m2!3m1!1s0x85d201693184fdc7:0xe246526b8f345c50", "lat": 19.4191094, "lng": -99.2155165, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n15", "nombre": "Zeru Lomas", "estado": "visitado", "cocinas": [{"pais": "Española", "sub": ["Cocina vasca"]}], "fusion": false, "precio": 4, "zona": "Lomas de Chapultepec", "direccion": "Monte Everest 635, Lomas de Chapultepec", "telefono": "+52 55 1857 6565", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Zeru+Lomas/data=!4m2!3m1!1s0x85d2016386a96733:0x55c7fcbfdf53822b", "lat": 19.4191612, "lng": -99.2155647, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n16", "nombre": "Morton's The Steakhouse", "estado": "visitado", "cocinas": [{"pais": "Estadounidense", "sub": ["Steakhouse"]}], "fusion": false, "precio": 4, "zona": "Lomas de Chapultepec", "direccion": "Paseo de las Palmas 405, Lomas de Chapultepec", "telefono": "+52 55 5540 7897", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Morton's+M%C3%A9xico/data=!4m2!3m1!1s0x85d2021ffbc599db:0xee290b1a4e5bfd26", "lat": 19.4301698, "lng": -99.2113165, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n17", "nombre": "Dawat", "estado": "visitado", "cocinas": [{"pais": "India", "sub": ["Curry", "Tandoor"]}], "fusion": false, "precio": 2, "zona": "Polanco", "direccion": "Av. Ejército Nacional 676, Polanco", "telefono": "+52 55 5281 8020", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Dawat/data=!4m2!3m1!1s0x85d2021d6fdf3ccf:0xb0742b77fa03f8b5", "lat": 19.4379752, "lng": -99.1968479, "momentos": ["comida", "cena"], "opciones": ["vegetariano"], "destacados": [], "favoritos": []}, {"id": "n18", "nombre": "Villa Rica Polanco", "estado": "visitado", "cocinas": [{"pais": "Mexicana", "sub": ["Mariscos"]}], "fusion": false, "precio": 2, "zona": "Polanco", "direccion": "Alejandro Dumas, Polanco", "telefono": "+52 55 5281 3588", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Villa+Rica+Polanco/data=!4m2!3m1!1s0x85d202021937179b:0xbb5be52e84fbc8af", "lat": 19.4304716, "lng": -99.1961804, "momentos": ["desayuno", "comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n19", "nombre": "Manaw", "estado": "visitado", "cocinas": [{"pais": "Tailandesa", "sub": []}], "fusion": false, "precio": 3, "zona": "Polanco", "direccion": "Av. Emilio Castelar 149, Polanco", "telefono": "+52 55 1560 6276", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Manaw/data=!4m2!3m1!1s0x85d20368d0efff87:0xc0afa6343db3cbf8", "lat": 19.4303322, "lng": -99.1989168, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n20", "nombre": "Alverre Café Bistró", "estado": "visitado", "cocinas": [{"pais": "Mexicana", "sub": ["Desayunos"]}, {"pais": "Italiana", "sub": ["Pasta"]}], "fusion": false, "precio": 2, "zona": "Coyoacán", "direccion": "Gómez Farías 42, Del Carmen, Coyoacán", "telefono": "+52 55 5658 9027", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Alverre+Caf%C3%A9+Bistr%C3%B3/data=!4m2!3m1!1s0x85d1ffc51b79a505:0x93713d89239162f6", "lat": 19.3516905, "lng": -99.1591888, "momentos": ["desayuno", "comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n21", "nombre": "Porco Rosso Coyoacán", "estado": "visitado", "cocinas": [{"pais": "Estadounidense", "sub": ["BBQ / ahumados"]}], "fusion": false, "precio": 2, "zona": "Coyoacán", "direccion": "Av. División del Norte 3103, El Rosedal, Coyoacán", "telefono": "+52 55 5336 3522", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Porco+Rosso+BBQ+Coyoac%C3%A1n/data=!4m2!3m1!1s0x85ce002a9b72b7c9:0x81ab741584ad1730", "lat": 19.3378479, "lng": -99.1482168, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n22", "nombre": "Pin-Tó Thai", "estado": "visitado", "cocinas": [{"pais": "Tailandesa", "sub": []}], "fusion": false, "precio": 2, "zona": "Coyoacán", "direccion": "Av. Coyoacán 2000, Xoco", "telefono": "", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/PIN-T%C3%93+THAI/data=!4m2!3m1!1s0x85d1ff292dd7be45:0xf5e5f9733296028b", "lat": 19.3604777, "lng": -99.1701793, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n23", "nombre": "Gyu-Kaku Mitikah", "estado": "visitado", "cocinas": [{"pais": "Japonesa", "sub": ["Yakiniku"]}], "fusion": false, "precio": "", "zona": "Xoco (Mitikah)", "direccion": "Centro Comercial Mitikah, Xoco", "telefono": "+52 56 5804 5685", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "Parrilla japonesa en la mesa.", "gmaps": "https://www.google.com/maps/place/Gyu-Kaku+Japanese+BBQ+Mitikah/data=!4m2!3m1!1s0x85d1ffeaa9e3084b:0x6fc410ec1c0a0843", "lat": 19.3602058, "lng": -99.1686826, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n24", "nombre": "Tandoor San Ángel", "estado": "visitado", "cocinas": [{"pais": "India", "sub": ["Curry", "Tandoor"]}], "fusion": false, "precio": 2, "zona": "San Ángel", "direccion": "Río San Ángel 86B, San Ángel", "telefono": "+52 55 9016 0880", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Tandoor+San+Angel/data=!4m2!3m1!1s0x85d1ff71cccb6ac7:0x3bb6a6af35b9f4fe", "lat": 19.3516342, "lng": -99.1891665, "momentos": ["comida", "cena"], "opciones": ["vegetariano"], "destacados": [], "favoritos": []}, {"id": "n25", "nombre": "La Docena Roma", "estado": "visitado", "cocinas": [{"pais": "Mexicana", "sub": ["Mariscos"]}], "fusion": false, "precio": "", "zona": "Roma Norte", "direccion": "Av. Álvaro Obregón 31, Roma Norte", "telefono": "+52 55 5208 0833", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "Ostionería y parrilla.", "gmaps": "https://www.google.com/maps/place/La+Docena+Roma/data=!4m2!3m1!1s0x85d1ff2548884df9:0x8aa6eaf6edcc69e", "lat": 19.4192386, "lng": -99.1560365, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n26", "nombre": "Porco Rosso Roma", "estado": "visitado", "cocinas": [{"pais": "Estadounidense", "sub": ["BBQ / ahumados"]}], "fusion": false, "precio": 2, "zona": "Roma Norte", "direccion": "Zacatecas 102, Roma Norte", "telefono": "+52 55 5264 4668", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Porco+Rosso+BBQ+Roma/data=!4m2!3m1!1s0x85d1ff3b731e6909:0xe72c06a08ef4a283", "lat": 19.4158008, "lng": -99.1589559, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n27", "nombre": "Yakumanka", "estado": "visitado", "cocinas": [{"pais": "Peruana", "sub": ["Cebichería"]}], "fusion": false, "precio": 2, "zona": "Roma Norte", "direccion": "Guanajuato 138, Roma Norte", "telefono": "+52 55 5035 8124", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Yakumanka/data=!4m2!3m1!1s0x85d1ffae31c80dbf:0x9ec4de43b4904efe", "lat": 19.416417, "lng": -99.1608804, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n28", "nombre": "Deigo Ramen Condesa", "estado": "visitado", "cocinas": [{"pais": "Japonesa", "sub": ["Ramen"]}], "fusion": false, "precio": 2, "zona": "Hipódromo", "direccion": "Tlaxcala 165, Hipódromo", "telefono": "", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "Abierto 24 horas; se pide en máquina al entrar.", "gmaps": "https://www.google.com/maps/place/Deigo+Ramen+Condesa/data=!4m2!3m1!1s0x85d1ff5b0260f853:0xd535034559e59b01", "lat": 19.4069645, "lng": -99.1692984, "momentos": ["desayuno", "comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n29", "nombre": "Deigo Ramen Roma", "estado": "visitado", "cocinas": [{"pais": "Japonesa", "sub": ["Ramen"]}], "fusion": false, "precio": 2, "zona": "Roma Norte", "direccion": "Av. Álvaro Obregón 130, Roma Norte", "telefono": "", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "Abierto 24 horas; se pide en máquina al entrar.", "gmaps": "https://www.google.com/maps/place/Deigo+Ramen+Roma/data=!4m2!3m1!1s0x85d1ffc6fbbc1cb7:0x51eebfbe65c5e8b7", "lat": 19.4173993, "lng": -99.1605518, "momentos": ["desayuno", "comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n30", "nombre": "Deigo Ramen Zona Rosa", "estado": "visitado", "cocinas": [{"pais": "Japonesa", "sub": ["Ramen"]}], "fusion": false, "precio": 2, "zona": "Juárez", "direccion": "Hamburgo 70 local A bis, Juárez", "telefono": "", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "Abierto 24 horas; se pide en máquina al entrar.", "gmaps": "https://www.google.com/maps/place/Deigo+Ramen+Zona+Rosa/data=!4m2!3m1!1s0x85d1ff5b48e46763:0x4a21a0ffd2b47bd", "lat": 19.4272684, "lng": -99.16237, "momentos": ["desayuno", "comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n31", "nombre": "Finesse", "estado": "visitado", "cocinas": [{"pais": "Mexicana", "sub": ["Desayunos"]}], "fusion": false, "precio": 2, "zona": "Lomas de Chapultepec", "direccion": "Aguiar y Seijas 38-A, Lomas Virreyes", "telefono": "+52 55 5202 9774", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Finesse/data=!4m2!3m1!1s0x85d201f114575d6d:0xbba341fdf9759b50", "lat": 19.4223168, "lng": -99.2041823, "momentos": ["desayuno", "comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n32", "nombre": "Tizne Tacomotora Roma", "estado": "visitado", "cocinas": [{"pais": "Mexicana", "sub": ["Tacos"]}, {"pais": "Coreana", "sub": []}], "fusion": true, "precio": 2, "zona": "Roma Norte", "direccion": "Guanajuato 27-B, Roma Norte", "telefono": "+52 55 3996 8656", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "Tacos de carnes ahumadas con toques asiáticos (kalbi) en tortilla verde.", "gmaps": "https://www.google.com/maps/place/Tizne+Tacomotora+(Roma)/data=!4m2!3m1!1s0x85d1ff62a2996bbf:0xb9d2b1b309322da5", "lat": 19.4176943, "lng": -99.1557899, "momentos": ["comida", "cena"], "opciones": [], "destacados": [{"e": "🥩", "n": "Taco de kalbi", "d": "", "p": ""}, {"e": "🌮", "n": "Suadero ahumado", "d": "", "p": ""}, {"e": "🥩", "n": "Brisket", "d": "", "p": ""}], "favoritos": [], "fuente": "reseñas de Google"}, {"id": "n33", "nombre": "Parker & Lenox", "estado": "visitado", "cocinas": [{"pais": "Estadounidense", "sub": ["Hamburguesas"]}], "fusion": false, "precio": 2, "zona": "Juárez", "direccion": "Gral. Prim 100, Juárez", "telefono": "+52 55 2183 5107", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "Bar de jazz con música en vivo en el salón de atrás; conviene reservar.", "gmaps": "https://www.google.com/maps/place/Parker+%26+Lenox/data=!4m2!3m1!1s0x85d1ff2d603d626f:0x232dad92e8d474db", "lat": 19.4308761, "lng": -99.1565254, "momentos": ["cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n34", "nombre": "Teppan Grill (Hyatt Regency)", "estado": "visitado", "cocinas": [{"pais": "Japonesa", "sub": ["Teppanyaki", "Sushi / nigiri"]}], "fusion": false, "precio": 4, "zona": "Polanco", "direccion": "Campos Elíseos 204, Polanco", "telefono": "+52 55 5083 1234", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "Dentro del hotel Hyatt Regency.", "gmaps": "https://www.google.com/maps/place/Teppan+Grill/data=!4m2!3m1!1s0x85d201ffaa1aee09:0x909f2aaaa52ee21a", "lat": 19.427557, "lng": -99.1927595, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n35", "nombre": "Yoshimi (Hyatt Regency)", "estado": "visitado", "cocinas": [{"pais": "Japonesa", "sub": ["Sushi / nigiri", "Casera / teishoku"]}], "fusion": false, "precio": 4, "zona": "Polanco", "direccion": "Campos Elíseos 204, Polanco", "telefono": "+52 55 5083 1234", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "Dentro del hotel Hyatt Regency.", "gmaps": "https://www.google.com/maps/place/Yoshimi/data=!4m2!3m1!1s0x85d201ff013665d9:0x1bc9b1fcf49a0ca4", "lat": 19.4271067, "lng": -99.1928351, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n36", "nombre": "El Burrito Norteño", "estado": "visitado", "cocinas": [{"pais": "Mexicana", "sub": ["Burritos"]}], "fusion": false, "precio": 2, "zona": "Coapa", "direccion": "Prol. Canal de Miramontes 2053, Coapa", "telefono": "+52 55 2952 7830", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/El+burrito+norte%C3%B1o/data=!4m2!3m1!1s0x85ce0106ca70e125:0xae13686978b5309d", "lat": 19.287268, "lng": -99.139817, "momentos": ["desayuno", "comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n37", "nombre": "Mi Compa Chava Coyoacán", "estado": "visitado", "cocinas": [{"pais": "Mexicana", "sub": ["Mariscos"]}], "fusion": false, "precio": 2, "zona": "Coyoacán", "direccion": "Venustiano Carranza esq. Felipe Carrillo Puerto, Coyoacán", "telefono": "+52 55 9219 0294", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "Sucursal de Coyoacán.", "gmaps": "https://www.google.com/maps/place/MARISCOS+%22MI+COMPA+CHAVA%22+COYOAC%C3%81N/data=!4m2!3m1!1s0x85d1ff8112f88301:0x9b4b568966c3e2a6", "lat": 19.3475826, "lng": -99.1634685, "momentos": ["comida"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n38", "nombre": "Sole, Pizza, Pasta e Amore", "estado": "visitado", "cocinas": [{"pais": "Italiana", "sub": ["Pizza", "Pasta"]}], "fusion": false, "precio": 2, "zona": "Coyoacán", "direccion": "Alberto Zamora 14-B, Del Carmen, Coyoacán", "telefono": "+52 56 5494 3441", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Sole,+Pizza,+Pasta+e+Amore/data=!4m2!3m1!1s0x85d1ffdc5b76d061:0xc12508875f1d8ae9", "lat": 19.345932, "lng": -99.1639978, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n39", "nombre": "Barrio Sur", "estado": "visitado", "cocinas": [{"pais": "Argentina", "sub": ["Parrilla"]}], "fusion": false, "precio": 4, "zona": "San Ángel", "direccion": "Calz. Santa Catarina 207, San Ángel Inn", "telefono": "+52 55 5550 4716", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Barrio+Sur/data=!4m2!3m1!1s0x85d2001ade873509:0x1f9544229b4e73f4", "lat": 19.3489355, "lng": -99.1981683, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n40", "nombre": "Fiesole", "estado": "visitado", "cocinas": [{"pais": "Italiana", "sub": ["Pasta", "Trattoria"]}], "fusion": false, "precio": "", "zona": "San Ángel", "direccion": "Av. del Parque 2, Tlacopac", "telefono": "+52 55 5663 1913", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Fiesole/data=!4m2!3m1!1s0x85d2001d8e8e5b87:0xf6f4885b6ef5c5a4", "lat": 19.352119, "lng": -99.1905436, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n41", "nombre": "Miyako Perisur", "estado": "visitado", "cocinas": [{"pais": "Japonesa", "sub": ["Teppanyaki"]}], "fusion": false, "precio": "", "zona": "Perisur", "direccion": "Periférico Sur 4690, Perisur", "telefono": "+52 55 5606 9599", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Miyako+Perisur/data=!4m2!3m1!1s0x85cdffd887c3fdbd:0x1cd825901650ebe5", "lat": 19.3040053, "lng": -99.1888575, "momentos": ["desayuno", "comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n42", "nombre": "Fogo de Chão Perisur", "estado": "visitado", "cocinas": [{"pais": "Brasileña", "sub": ["Rodizio"]}], "fusion": false, "precio": "", "zona": "Perisur", "direccion": "Periférico Sur 4690, Perisur", "telefono": "+52 55 2125 4519", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Fogo+De+Ch%C3%A3o+Perisur/data=!4m2!3m1!1s0x85cdffdd525e006d:0xeef2996b4b2fd4a", "lat": 19.3032542, "lng": -99.1901517, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n43", "nombre": "Fogo de Chão Paseo Acoxpa", "estado": "visitado", "cocinas": [{"pais": "Brasileña", "sub": ["Rodizio"]}], "fusion": false, "precio": "", "zona": "Tlalpan", "direccion": "Calz. Acoxpa 430, Tlalpan", "telefono": "+52 55 5925 1917", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Fogo+De+Ch%C3%A3o+Paseo+Acoxpa/data=!4m2!3m1!1s0x85ce019540430b51:0xb2e9bdcf999b7ab6", "lat": 19.3001502, "lng": -99.1375545, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n44", "nombre": "Shake Shack Terraza Coapa", "estado": "visitado", "cocinas": [{"pais": "Estadounidense", "sub": ["Hamburguesas"]}], "fusion": false, "precio": 2, "zona": "Coapa", "direccion": "Calz. Acoxpa 610, Coapa", "telefono": "", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Shake+Shack+Terraza+Coapa/data=!4m2!3m1!1s0x85ce010f17dae377:0x14e15b04a628d1ff", "lat": 19.2939549, "lng": -99.1268901, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n45", "nombre": "Intruso", "estado": "visitado", "cocinas": [{"pais": "Estadounidense", "sub": ["Hamburguesas"]}, {"pais": "Italiana", "sub": ["Pizza"]}], "fusion": false, "precio": 2, "zona": "Tlalpan", "direccion": "Guadalupe Victoria 21, Tlalpan Centro", "telefono": "+52 55 5485 1463", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/INTRUSO/data=!4m2!3m1!1s0x85ce011061de62cd:0x826a676dbd28ee4c", "lat": 19.2881658, "lng": -99.1679003, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n46", "nombre": "Hilo Negro Tlalpan", "estado": "visitado", "cocinas": [{"pais": "Italiana", "sub": ["Pizza"]}], "fusion": false, "precio": 2, "zona": "Tlalpan", "direccion": "Plaza de la Constitución 1, Tlalpan Centro", "telefono": "+52 55 5719 9415", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Hilo+Negro+Tlalpan/data=!4m2!3m1!1s0x85ce013d08f45a4b:0xc0b33036da79fd8d", "lat": 19.2890936, "lng": -99.1669074, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n47", "nombre": "Hooters San Ángel", "estado": "visitado", "cocinas": [{"pais": "Estadounidense", "sub": ["Alitas"]}], "fusion": false, "precio": 2, "zona": "San Ángel", "direccion": "Av. Insurgentes 2018, Chimalistac", "telefono": "+52 55 8750 5145", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Hooters+San+%C3%81ngel/data=!4m2!3m1!1s0x85d1fff48026ba0f:0x4ad4220cf1efc60e", "lat": 19.349835, "lng": -99.186402, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n48", "nombre": "Shake Shack Pedregal", "estado": "visitado", "cocinas": [{"pais": "Estadounidense", "sub": ["Hamburguesas"]}], "fusion": false, "precio": 2, "zona": "Jardines del Pedregal", "direccion": "Av. de las Fuentes 571, Jardines del Pedregal", "telefono": "", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Shake+Shack+Pedregal/data=!4m2!3m1!1s0x85cdff00505225d3:0x9e626dc370424b4a", "lat": 19.3160132, "lng": -99.2126538, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n49", "nombre": "El Remolkito del Sirloin Pedregal", "estado": "visitado", "cocinas": [{"pais": "Mexicana", "sub": ["Tacos"]}], "fusion": false, "precio": 2, "zona": "Jardines del Pedregal", "direccion": "Av. de las Fuentes 569, Jardines del Pedregal", "telefono": "+52 55 4809 2211", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/El+Remolkito+del+Sirloin+Pedregal/data=!4m2!3m1!1s0x85cdff0f11548397:0x66a006d5b8b2463d", "lat": 19.3162227, "lng": -99.2125074, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n50", "nombre": "Los Arcos San Ángel", "estado": "visitado", "cocinas": [{"pais": "Mexicana", "sub": ["Mariscos"]}], "fusion": false, "precio": 3, "zona": "San Ángel", "direccion": "Av. San Jerónimo 215, Tizapán San Ángel", "telefono": "+52 55 5616 6313", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "Cadena sinaloense fundada en 1977.", "gmaps": "https://www.google.com/maps/place/Los+Arcos+Restaurant/data=!4m2!3m1!1s0x85cdfff89e5ee91d:0xd6e2816aaa07ebee", "lat": 19.3362545, "lng": -99.1966177, "momentos": ["comida", "cena"], "opciones": [], "destacados": [{"e": "🥬", "n": "Aguachile verde de camarón", "d": "", "p": ""}, {"e": "🦪", "n": "Ostiones a la parrilla", "d": "", "p": ""}, {"e": "🌮", "n": "Tacos gobernador", "d": "De camarón y queso; dicen haberlos creado en los 80", "p": ""}], "favoritos": [], "fuente": "Culinary Backstreets"}, {"id": "n51", "nombre": "Happy Lamb Hot Pot", "estado": "visitado", "cocinas": [{"pais": "China", "sub": ["Hot pot"]}], "fusion": false, "precio": "", "zona": "Polanco", "direccion": "Av. Presidente Masaryk 214, Polanco", "telefono": "+52 55 3193 2024", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Happy+Lamb+Hot+Pot/data=!4m2!3m1!1s0x85d20300528d4065:0xf317a16be40a4173", "lat": 19.4311634, "lng": -99.1901737, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n52", "nombre": "La Once Mil Roma Norte", "estado": "pendiente", "cocinas": [{"pais": "Mexicana", "sub": ["Tacos"]}], "fusion": false, "precio": 3, "zona": "Roma Norte", "direccion": "Orizaba 83, Roma Norte", "telefono": "", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "La Once Mil recibió una estrella Michelin en 2026 (según Esquire); hay fila.", "gmaps": "https://www.google.com/maps/place/La+Once+Mil+-+Roma+Norte/data=!4m2!3m1!1s0x85d1ff005adfb7d3:0xd652330b4035e930", "lat": 19.4199507, "lng": -99.160306, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n53", "nombre": "Sudestada", "estado": "pendiente", "cocinas": [{"pais": "Argentina", "sub": ["Parrilla"]}], "fusion": false, "precio": 3, "zona": "Cuajimalpa", "direccion": "Av. Arteaga y Salazar 68, Contadero, Cuajimalpa", "telefono": "+52 55 6663 2600", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "", "gmaps": "https://www.google.com/maps/place/Sudestada/data=!4m2!3m1!1s0x85d207a00f9a31e7:0x2755c94b4eac1cf", "lat": 19.3476947, "lng": -99.3043304, "momentos": ["comida", "cena"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n54", "nombre": "IDE Gourmet Oriental", "estado": "pendiente", "cocinas": [{"pais": "Japonesa", "sub": ["Sushi / nigiri", "Casera / teishoku"]}], "fusion": false, "precio": 2, "zona": "Polanco", "direccion": "Petrarca 332, Polanco", "telefono": "+52 55 5531 4881", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "Tienda japonesa con comedor: eliges el pescado y cómo lo preparan.", "gmaps": "https://www.google.com/maps/place/IDE+Gourmet+Oriental/data=!4m2!3m1!1s0x85d1f8ab46da6487:0xf7846d59d51dac2c", "lat": 19.431829, "lng": -99.185548, "momentos": ["comida"], "opciones": [], "destacados": [], "favoritos": []}, {"id": "n55", "nombre": "Pujol", "estado": "pendiente", "cocinas": [{"pais": "Mexicana", "sub": ["Contemporánea"]}], "fusion": false, "precio": 4, "zona": "Polanco", "direccion": "Tennyson 133, Polanco", "telefono": "+52 55 5545 4111", "web": "", "menus": [], "menuFecha": "", "reserva": "", "notas": "Del chef Enrique Olvera; dos estrellas Michelin. Reserva con mucha anticipación.", "gmaps": "https://www.google.com/maps/place/Pujol/data=!4m2!3m1!1s0x85d1f8ab75b39d59:0xa1b937b5fe14fb16", "lat": 19.4323763, "lng": -99.1948132, "momentos": ["comida", "cena"], "opciones": [], "destacados": [{"e": "🫕", "n": "Mole madre, mole nuevo", "d": "Su plato insignia", "p": ""}, {"e": "🌽", "n": "Elotitos con mayonesa de chicatana", "d": "", "p": ""}], "favoritos": [], "fuente": "reseñas de Google"}];
+const DISC = [
+ {
+  "id": "d1",
+  "nombre": "Quintonil",
+  "cocinas": [
+   {
+    "pais": "Mexicana",
+    "sub": [
+     "Contemporánea"
+    ]
+   }
+  ],
+  "fusion": false,
+  "precio": 4,
+  "zona": "Polanco",
+  "direccion": "Av. Isaac Newton 55, Polanco",
+  "telefono": "+52 55 5280 0254",
+  "lat": 19.4308408,
+  "lng": -99.1917115,
+  "gmaps": "https://www.google.com/maps/search/?api=1&query=Quintonil&query_place_id=ChIJbS8EZf8B0oURwwD8B0MpqK0",
+  "google": {
+   "r": 4.4,
+   "n": 2980
+  },
+  "fuentes": [
+   {
+    "n": "Guía Michelin",
+    "d": "Dos estrellas 2026"
+   },
+   {
+    "n": "50 Best",
+    "d": "#7 de Latinoamérica 2025"
+   }
+  ],
+  "porque": "Cocina mexicana contemporánea con menú degustación; de los restaurantes más reconocidos del país. Reserva con mucha anticipación.",
+  "momentos": [
+   "comida",
+   "cena"
+  ],
+  "opciones": []
+ },
+ {
+  "id": "d2",
+  "nombre": "Rosetta",
+  "cocinas": [
+   {
+    "pais": "Mexicana",
+    "sub": [
+     "Contemporánea"
+    ]
+   },
+   {
+    "pais": "Italiana",
+    "sub": [
+     "Pasta"
+    ]
+   }
+  ],
+  "fusion": false,
+  "precio": 4,
+  "zona": "Roma Norte",
+  "direccion": "Colima 166, Roma Norte",
+  "telefono": "+52 55 5533 7804",
+  "lat": 19.4197758,
+  "lng": -99.1598009,
+  "gmaps": "https://www.google.com/maps/search/?api=1&query=Rosetta&query_place_id=ChIJdSGAWgP_0YURwNtY7rftf2E",
+  "google": {
+   "r": 4.2,
+   "n": 4890
+  },
+  "fuentes": [
+   {
+    "n": "50 Best",
+    "d": "#39 de Latinoamérica 2025"
+   }
+  ],
+  "porque": "De la chef Elena Reygadas, en una casona de la Roma. Las reseñas destacan el tartar de betabel al pastor, las pastas y el tres leches de mamey.",
+  "momentos": [
+   "comida",
+   "cena"
+  ],
+  "opciones": []
+ },
+ {
+  "id": "d3",
+  "nombre": "Máximo",
+  "cocinas": [
+   {
+    "pais": "Mexicana",
+    "sub": [
+     "Contemporánea"
+    ]
+   }
+  ],
+  "fusion": false,
+  "precio": 4,
+  "zona": "Roma Norte",
+  "direccion": "Av. Álvaro Obregón 65 Bis, Roma Norte",
+  "telefono": "+52 55 5264 4291",
+  "lat": 19.4189482,
+  "lng": -99.1580841,
+  "gmaps": "https://www.google.com/maps/search/?api=1&query=Máximo&query_place_id=ChIJdw0B4zv_0YURK8xSHYwyp2E",
+  "google": {
+   "r": 4.3,
+   "n": 2844
+  },
+  "fuentes": [
+   {
+    "n": "50 Best",
+    "d": "#30 de Latinoamérica 2025"
+   }
+  ],
+  "porque": "Del chef Eduardo García, el mismo grupo detrás de Makan. Menú de temporada y opción de degustación.",
+  "momentos": [
+   "comida",
+   "cena"
+  ],
+  "opciones": []
+ },
+ {
+  "id": "d5",
+  "nombre": "Comal Oculto",
+  "cocinas": [
+   {
+    "pais": "Mexicana",
+    "sub": [
+     "Antojitos"
+    ]
+   }
+  ],
+  "fusion": false,
+  "precio": 2,
+  "zona": "San Miguel Chapultepec",
+  "direccion": "Gral. Gómez Pedraza 37, San Miguel Chapultepec",
+  "telefono": "+52 55 8988 2557",
+  "lat": 19.4140458,
+  "lng": -99.183476,
+  "gmaps": "https://www.google.com/maps/search/?api=1&query=Comal+Oculto&query_place_id=ChIJF1Vb4Yf_0YURwBQPkqdpGrk",
+  "google": {
+   "r": 4.4,
+   "n": 474
+  },
+  "fuentes": [
+   {
+    "n": "Guía Michelin",
+    "d": "Bib Gourmand 2026"
+   },
+   {
+    "n": "The Infatuation",
+    "d": "Recomiendan su enmolada"
+   }
+  ],
+  "porque": "Antojitos con tortillas hechas a mano: gorditas, enmoladas. Este local es para llevar; el comedor está a una cuadra.",
+  "momentos": [
+   "desayuno",
+   "comida"
+  ],
+  "opciones": []
+ },
+ {
+  "id": "d6",
+  "nombre": "Ultramarinos Demar",
+  "cocinas": [
+   {
+    "pais": "Mexicana",
+    "sub": [
+     "Mariscos"
+    ]
+   }
+  ],
+  "fusion": false,
+  "precio": 4,
+  "zona": "Roma Norte",
+  "direccion": "Mérida 21, Roma Norte",
+  "telefono": "+52 55 6481 5022",
+  "lat": 19.4234715,
+  "lng": -99.1586808,
+  "gmaps": "https://www.google.com/maps/search/?api=1&query=Ultramarinos+Demar&query_place_id=ChIJ6861PAD_0YURBCIy7ssSy54",
+  "google": {
+   "r": 4.2,
+   "n": 389
+  },
+  "fuentes": [
+   {
+    "n": "Guía Michelin",
+    "d": "Bib Gourmand 2026"
+   }
+  ],
+  "porque": "Mariscos de muy alta calidad: crudos, tostadas, ostiones y rollo de cangrejo. De los más caros de su tipo.",
+  "momentos": [
+   "comida",
+   "cena"
+  ],
+  "opciones": []
+ },
+ {
+  "id": "d7",
+  "nombre": "Caracol de Mar",
+  "cocinas": [
+   {
+    "pais": "Mexicana",
+    "sub": [
+     "Mariscos"
+    ]
+   }
+  ],
+  "fusion": false,
+  "precio": 4,
+  "zona": "Condesa",
+  "direccion": "Campeche 340, Condesa",
+  "telefono": "+52 55 5949 8304",
+  "lat": 19.4089407,
+  "lng": -99.1735312,
+  "gmaps": "https://www.google.com/maps/search/?api=1&query=Caracol+de+Mar&query_place_id=ChIJH-kaX5X50YURRySENQ6rOyw",
+  "google": {
+   "r": 4.4,
+   "n": 792
+  },
+  "fuentes": [
+   {
+    "n": "Guía Michelin",
+    "d": "Bib Gourmand 2026"
+   }
+  ],
+  "porque": "Hermano de Contramar. Tiradito de ventresca, tostadas de atún y pulpo, y opciones vegetarianas como la tostada de coco.",
+  "momentos": [
+   "comida",
+   "cena"
+  ],
+  "opciones": [
+   "vegetariano"
+  ]
+ },
+ {
+  "id": "d8",
+  "nombre": "Los Cocuyos",
+  "cocinas": [
+   {
+    "pais": "Mexicana",
+    "sub": [
+     "Tacos"
+    ]
+   }
+  ],
+  "fusion": false,
+  "precio": 2,
+  "zona": "Centro Histórico",
+  "direccion": "Simón Bolívar 59, Centro",
+  "telefono": "+52 55 5518 4231",
+  "lat": 19.4302794,
+  "lng": -99.1387977,
+  "gmaps": "https://www.google.com/maps/search/?api=1&query=Los+Cocuyos&query_place_id=ChIJs1uZdNP-0YUR7xEuCTGxAMM",
+  "google": {
+   "r": 4.1,
+   "n": 14098
+  },
+  "fuentes": [
+   {
+    "n": "Guía Michelin",
+    "d": "Bib Gourmand 2026"
+   }
+  ],
+  "porque": "Taquería clásica del Centro abierta las 24 horas. Suadero, lengua, al pastor y gringas.",
+  "momentos": [
+   "desayuno",
+   "comida",
+   "cena"
+  ],
+  "opciones": []
+ },
+ {
+  "id": "d9",
+  "nombre": "Tacos Los Alexis",
+  "cocinas": [
+   {
+    "pais": "Mexicana",
+    "sub": [
+     "Tacos"
+    ]
+   }
+  ],
+  "fusion": false,
+  "precio": 2,
+  "zona": "Roma Norte",
+  "direccion": "Chiapas 46, Roma Norte",
+  "telefono": "+52 55 4021 8314",
+  "lat": 19.4132919,
+  "lng": -99.1569371,
+  "gmaps": "https://www.google.com/maps/search/?api=1&query=Tacos+Los+Alexis&query_place_id=ChIJx7yVsN__0YURSRd6hvxAiNo",
+  "google": {
+   "r": 4.4,
+   "n": 522
+  },
+  "fuentes": [
+   {
+    "n": "Guía Michelin",
+    "d": "Bib Gourmand 2026"
+   }
+  ],
+  "porque": "Tacos de res creativos; en reseñas destacan la costra especial y la contra especial.",
+  "momentos": [
+   "comida",
+   "cena"
+  ],
+  "opciones": []
+ },
+ {
+  "id": "d10",
+  "nombre": "El Vilsito",
+  "cocinas": [
+   {
+    "pais": "Mexicana",
+    "sub": [
+     "Tacos"
+    ]
+   }
+  ],
+  "fusion": false,
+  "precio": 2,
+  "zona": "Narvarte",
+  "direccion": "Petén 248 y Av. Universidad, Narvarte",
+  "telefono": "+52 55 5536 3060",
+  "lat": 19.3893341,
+  "lng": -99.1527936,
+  "gmaps": "https://www.google.com/maps/search/?api=1&query=El+Vilsito&query_place_id=ChIJDdra6wb_0YURFuXldLZeUug",
+  "google": {
+   "r": 4.3,
+   "n": 16379
+  },
+  "fuentes": [
+   {
+    "n": "Guía Michelin",
+    "d": "Bib Gourmand 2026"
+   }
+  ],
+  "porque": "Taller mecánico de día y taquería de pastor de noche, abierto hasta las 5 am. Pide la salsa de árbol.",
+  "momentos": [
+   "comida",
+   "cena"
+  ],
+  "opciones": []
+ },
+ {
+  "id": "d11",
+  "nombre": "Pink Rambo",
+  "cocinas": [
+   {
+    "pais": "De autor",
+    "sub": [
+     "Menú de temporada"
+    ]
+   }
+  ],
+  "fusion": false,
+  "precio": 2,
+  "zona": "Santa María la Ribera",
+  "direccion": "Cedro 66, Santa María la Ribera",
+  "telefono": "+52 55 6479 2623",
+  "lat": 19.4453052,
+  "lng": -99.1631944,
+  "gmaps": "https://www.google.com/maps/search/?api=1&query=Pink+Rambo&query_place_id=ChIJKe1IfUb50YURJZF3_O1Orsg",
+  "google": {
+   "r": 3.9,
+   "n": 134
+  },
+  "fuentes": [
+   {
+    "n": "Guía Michelin",
+    "d": "Bib Gourmand 2026"
+   }
+  ],
+  "porque": "Menú que el chef cambia cada semana según el producto, con cocina abierta. Solo abre de jueves a sábado.",
+  "momentos": [
+   "cena"
+  ],
+  "opciones": [
+   "vegetariano"
+  ]
+ },
+ {
+  "id": "d12",
+  "nombre": "Campobaja",
+  "cocinas": [
+   {
+    "pais": "Mexicana",
+    "sub": [
+     "Mariscos"
+    ]
+   }
+  ],
+  "fusion": false,
+  "precio": "",
+  "zona": "Roma Norte",
+  "direccion": "Colima 124-E, Roma Norte",
+  "telefono": "+52 55 7091 5660",
+  "lat": 19.4200488,
+  "lng": -99.158288,
+  "gmaps": "https://www.google.com/maps/search/?api=1&query=Campobaja&query_place_id=ChIJ-wf0njr_0YURewRsUhR94XE",
+  "google": {
+   "r": 4.4,
+   "n": 1959
+  },
+  "fuentes": [
+   {
+    "n": "Guía Michelin",
+    "d": "Restaurante recomendado"
+   }
+  ],
+  "porque": "Mariscos estilo Baja California. En reseñas destacan el pulpo, la tostada de ventresca y el ceviche negro.",
+  "momentos": [
+   "comida",
+   "cena"
+  ],
+  "opciones": []
+ },
+ {
+  "id": "d13",
+  "nombre": "El Tigre Silencioso",
+  "cocinas": [
+   {
+    "pais": "De autor",
+    "sub": []
+   }
+  ],
+  "fusion": false,
+  "precio": "",
+  "zona": "Roma Norte",
+  "direccion": "Colima 159 int. 1A, Roma Norte",
+  "telefono": "+52 55 9300 3306",
+  "lat": 19.4203162,
+  "lng": -99.1597461,
+  "gmaps": "https://www.google.com/maps/search/?api=1&query=El+Tigre+Silencioso&query_place_id=ChIJq6r6gTD_0YUR_m34q6-Nho4",
+  "google": {
+   "r": 4.0,
+   "n": 770
+  },
+  "fuentes": [
+   {
+    "n": "Guía Michelin",
+    "d": "Restaurante recomendado"
+   }
+  ],
+  "porque": "Cocina creativa en un primer piso de la Roma. Croquetas de cangrejo, atún aleta azul y brunch los fines de semana.",
+  "momentos": [
+   "comida",
+   "cena"
+  ],
+  "opciones": []
+ },
+ {
+  "id": "d14",
+  "nombre": "Taverna",
+  "cocinas": [
+   {
+    "pais": "Mediterránea",
+    "sub": []
+   }
+  ],
+  "fusion": false,
+  "precio": 4,
+  "zona": "Juárez",
+  "direccion": "Colonia Juárez",
+  "telefono": "+52 55 1701 7901",
+  "lat": 19.429691,
+  "lng": -99.1531323,
+  "gmaps": "https://www.google.com/maps/search/?api=1&query=Taverna&query_place_id=ChIJNyMZ2qL_0YUR3eYvqdU7DLE",
+  "google": {
+   "r": 4.4,
+   "n": 1894
+  },
+  "fuentes": [
+   {
+    "n": "The Infatuation",
+    "d": "Quizá el restaurante más bonito de la CDMX"
+   }
+  ],
+  "porque": "Mediterráneo con ambiente rústico. En reseñas: dátiles con chorizo, carpaccio de betabel, zanahorias con labneh.",
+  "momentos": [
+   "comida",
+   "cena"
+  ],
+  "opciones": [
+   "vegetariano"
+  ]
+ },
+ {
+  "id": "d15",
+  "nombre": "Ticuchi",
+  "cocinas": [
+   {
+    "pais": "Mexicana",
+    "sub": [
+     "Contemporánea"
+    ]
+   }
+  ],
+  "fusion": false,
+  "precio": "",
+  "zona": "Polanco",
+  "direccion": "Petrarca 254, Polanco",
+  "telefono": "+52 56 1299 7077",
+  "lat": 19.4335785,
+  "lng": -99.1854677,
+  "gmaps": "https://www.google.com/maps/search/?api=1&query=Ticuchi&query_place_id=ChIJbRDPdav40YURqux8hUKwtww",
+  "google": {
+   "r": 4.3,
+   "n": 1134
+  },
+  "fuentes": [
+   {
+    "n": "The Infatuation",
+    "d": "De los mejores lugares vegetarianos de la CDMX"
+   }
+  ],
+  "porque": "Bar con cocina de ingredientes ancestrales mexicanos, en el antiguo local de Pujol. Sentarse en la barra.",
+  "momentos": [
+   "cena"
+  ],
+  "opciones": [
+   "vegetariano"
+  ]
+ },
+ {
+  "id": "d16",
+  "nombre": "Paris 16",
+  "cocinas": [
+   {
+    "pais": "Francesa",
+    "sub": [
+     "Bistró"
+    ]
+   }
+  ],
+  "fusion": false,
+  "precio": 2,
+  "zona": "Juárez",
+  "direccion": "Paseo de la Reforma 368, Juárez",
+  "telefono": "+52 55 5511 9911",
+  "lat": 19.4258483,
+  "lng": -99.1689237,
+  "gmaps": "https://www.google.com/maps/search/?api=1&query=Paris+16&query_place_id=ChIJHVruH0r_0YURmaYkRnam92c",
+  "google": {
+   "r": 4.5,
+   "n": 731
+  },
+  "fuentes": [
+   {
+    "n": "The Infatuation",
+    "d": "Para una comida tranquila en la Juárez"
+   }
+  ],
+  "porque": "Bistró de barrio. Todos piden la milanesa.",
+  "momentos": [
+   "desayuno",
+   "comida"
+  ],
+  "opciones": []
+ },
+ {
+  "id": "d17",
+  "nombre": "Koku",
+  "cocinas": [
+   {
+    "pais": "Japonesa",
+    "sub": [
+     "Ramen",
+     "Sushi / nigiri"
+    ]
+   }
+  ],
+  "fusion": false,
+  "precio": 2,
+  "zona": "Cuauhtémoc",
+  "direccion": "Río Lerma 94C, Cuauhtémoc",
+  "telefono": "+52 55 5207 3344",
+  "lat": 19.4297267,
+  "lng": -99.1660949,
+  "gmaps": "https://www.google.com/maps/search/?api=1&query=Koku&query_place_id=ChIJVSlbEjX_0YUR-xH6n-0rGw4",
+  "google": {
+   "r": 4.4,
+   "n": 5261
+  },
+  "fuentes": [
+   {
+    "n": "Time Out",
+    "d": "Lista de mejores ramen"
+   },
+   {
+    "n": "Chilango",
+    "d": "Ruta del mejor ramen"
+   },
+   {
+    "n": "Chic Magazine",
+    "d": "5 mejores ramen"
+   }
+  ],
+  "porque": "En la zona conocida como Little Tokyo. Ramen, sushi, curry y yakimeshi; el chashumen es de los más pedidos.",
+  "momentos": [
+   "comida",
+   "cena"
+  ],
+  "opciones": []
+ },
+ {
+  "id": "d18",
+  "nombre": "Manpuku Ramen",
+  "cocinas": [
+   {
+    "pais": "Japonesa",
+    "sub": [
+     "Ramen"
+    ]
+   }
+  ],
+  "fusion": false,
+  "precio": 2,
+  "zona": "Del Valle",
+  "direccion": "Tlacoquemecatl 47 Bis, Del Valle",
+  "telefono": "",
+  "lat": 19.3785196,
+  "lng": -99.1756412,
+  "gmaps": "https://www.google.com/maps/search/?api=1&query=Manpuku+Ramen&query_place_id=ChIJcSI3yFL_0YURvJ3HpUFfWtc",
+  "google": {
+   "r": 4.5,
+   "n": 1084
+  },
+  "fuentes": [
+   {
+    "n": "Time Out",
+    "d": "Lista de mejores ramen"
+   }
+  ],
+  "porque": "Local pequeño cerca del Parque Hundido, buen precio. Pocas mesas, no es para grupos grandes.",
+  "momentos": [
+   "comida"
+  ],
+  "opciones": []
+ },
+ {
+  "id": "d19",
+  "nombre": "Yamasan Ramen House",
+  "cocinas": [
+   {
+    "pais": "Japonesa",
+    "sub": [
+     "Ramen"
+    ]
+   }
+  ],
+  "fusion": false,
+  "precio": 2,
+  "zona": "Hipódromo Condesa",
+  "direccion": "Av. Tamaulipas 103, Hipódromo Condesa",
+  "telefono": "+52 55 5211 7847",
+  "lat": 19.4106622,
+  "lng": -99.1749663,
+  "gmaps": "https://www.google.com/maps/search/?api=1&query=Yamasan+Ramen+House&query_place_id=ChIJj6kuS0L_0YURQwn5GkItOVU",
+  "google": {
+   "r": 4.5,
+   "n": 11246
+  },
+  "fuentes": [
+   {
+    "n": "Chilango",
+    "d": "Ruta del mejor ramen"
+   },
+   {
+    "n": "Chic Magazine",
+    "d": "5 mejores ramen"
+   }
+  ],
+  "porque": "Del chef Shinichiro Nagata, un clásico del ramen en la ciudad. Recomiendan el negi chashu ramen; tienen ramen vegetariano.",
+  "momentos": [
+   "comida",
+   "cena"
+  ],
+  "opciones": [
+   "vegetariano"
+  ]
+ },
+ {
+  "id": "d20",
+  "nombre": "Rokai Ramen-Ya",
+  "cocinas": [
+   {
+    "pais": "Japonesa",
+    "sub": [
+     "Ramen"
+    ]
+   }
+  ],
+  "fusion": false,
+  "precio": "",
+  "zona": "Cuauhtémoc",
+  "direccion": "Río Ebro 89, Cuauhtémoc",
+  "telefono": "+52 56 3035 4220",
+  "lat": 19.4286852,
+  "lng": -99.1694993,
+  "gmaps": "https://www.google.com/maps/search/?api=1&query=Rokai+Ramen-Ya&query_place_id=ChIJFfP19Ur_0YUR6AlUz0a6wmI",
+  "google": {
+   "r": 4.3,
+   "n": 2451
+  },
+  "fuentes": [
+   {
+    "n": "Chic Magazine",
+    "d": "5 mejores ramen"
+   }
+  ],
+  "porque": "Ramen japonés tradicional con fideos hechos en casa; el grupo Rokai tiene casi 10 años en la ciudad.",
+  "momentos": [
+   "comida",
+   "cena"
+  ],
+  "opciones": []
+ },
+ {
+  "id": "d21",
+  "nombre": "Chalino Chino",
+  "cocinas": [
+   {
+    "pais": "Mexicana",
+    "sub": [
+     "Mariscos"
+    ]
+   },
+   {
+    "pais": "China",
+    "sub": []
+   }
+  ],
+  "fusion": true,
+  "precio": 2,
+  "zona": "San Miguel Chapultepec",
+  "direccion": "Juan de la Barrera 143, San Miguel Chapultepec",
+  "telefono": "",
+  "lat": 19.4187256,
+  "lng": -99.1793398,
+  "gmaps": "https://www.google.com/maps/search/?api=1&query=Chalino+Chino&query_place_id=ChIJAe6elUb_0YURZlWxjtTjEvU",
+  "google": {
+   "r": 4.5,
+   "n": 361
+  },
+  "fuentes": [
+   {
+    "n": "Chilango",
+    "d": "Comida china y sinaloense"
+   }
+  ],
+  "porque": "Mariscos sinaloenses con toque chino: aguachile con salsa guacamaya servido con chicharrón, camarones katsu y wontons. Chilango reportó otro local en Sinaloa 41, Roma Norte.",
+  "momentos": [
+   "comida"
+  ],
+  "opciones": []
+ },
+ {
+  "id": "d22",
+  "nombre": "Mariscos El Güero",
+  "cocinas": [
+   {
+    "pais": "Mexicana",
+    "sub": [
+     "Mariscos"
+    ]
+   }
+  ],
+  "fusion": false,
+  "precio": 2,
+  "zona": "Doctores",
+  "direccion": "Dr. Márquez 90, Doctores",
+  "telefono": "+52 55 5519 3494",
+  "lat": 19.4111277,
+  "lng": -99.1495916,
+  "gmaps": "https://www.google.com/maps/search/?api=1&query=Mariscos+El+Güero&query_place_id=ChIJQTtavSH_0YURzCvMlqwsWU8",
+  "google": {
+   "r": 4.5,
+   "n": 1317
+  },
+  "fuentes": [
+   {
+    "n": "Chilango",
+    "d": "8 marisquerías imperdibles 2026"
+   }
+  ],
+  "porque": "Marisquería popular a precios justos. En reseñas destacan el coctel de camarón.",
+  "momentos": [
+   "comida"
+  ],
+  "opciones": []
+ },
+ {
+  "id": "d23",
+  "nombre": "El Maviri",
+  "cocinas": [
+   {
+    "pais": "Mexicana",
+    "sub": [
+     "Mariscos"
+    ]
+   }
+  ],
+  "fusion": false,
+  "precio": 2,
+  "zona": "Tlalpan",
+  "direccion": "Av. Renato Leduc 220, Toriello Guerra",
+  "telefono": "+52 55 5424 1409",
+  "lat": 19.2963408,
+  "lng": -99.1593614,
+  "gmaps": "https://www.google.com/maps/search/?api=1&query=El+Maviri&query_place_id=ChIJ4-zrgVkAzoURGMutSoyL4pw",
+  "google": {
+   "r": 4.8,
+   "n": 2515
+  },
+  "fuentes": [
+   {
+    "n": "Culinary Backstreets",
+    "d": "Dónde comer cerca de los estadios"
+   }
+  ],
+  "porque": "Mariscos sinaloenses: torres, ostiones, almejas, tostadas y pescado zarandeado. Promociones de cerveza 3x2.",
+  "momentos": [
+   "desayuno",
+   "comida",
+   "cena"
+  ],
+  "opciones": []
+ },
+ {
+  "id": "d25",
+  "nombre": "Michoacaníssimo",
+  "cocinas": [
+   {
+    "pais": "Mexicana",
+    "sub": [
+     "Birria"
+    ]
+   }
+  ],
+  "fusion": false,
+  "precio": 2,
+  "zona": "Coyoacán",
+  "direccion": "San Valentín 866, Pedregal de Santa Úrsula",
+  "telefono": "+52 55 2963 2136",
+  "lat": 19.3118717,
+  "lng": -99.1615763,
+  "gmaps": "https://www.google.com/maps/search/?api=1&query=Michoacaníssimo&query_place_id=ChIJs9fI0kAAzoUREvGTm0b6qL4",
+  "google": {
+   "r": 4.5,
+   "n": 19463
+  },
+  "fuentes": [
+   {
+    "n": "Culinary Backstreets",
+    "d": "Dónde comer cerca de los estadios"
+   }
+  ],
+  "porque": "Birria de chivo estilo Michoacán con más de 70 años de historia: tacos, quesabirrias y su consomé.",
+  "momentos": [
+   "desayuno",
+   "comida"
+  ],
+  "opciones": []
+ },
+ {
+  "id": "d26",
+  "nombre": "El Villamelón",
+  "cocinas": [
+   {
+    "pais": "Mexicana",
+    "sub": [
+     "Tacos"
+    ]
+   }
+  ],
+  "fusion": false,
+  "precio": 2,
+  "zona": "Ciudad de los Deportes",
+  "direccion": "Tintoreto 123, Ciudad de los Deportes",
+  "telefono": "+52 55 5598 1142",
+  "lat": 19.38248,
+  "lng": -99.1812063,
+  "gmaps": "https://www.google.com/maps/search/?api=1&query=El+Villamelón&query_place_id=ChIJibacjIL_0YURoB55puKh75Q",
+  "google": {
+   "r": 4.1,
+   "n": 4425
+  },
+  "fuentes": [
+   {
+    "n": "Culinary Backstreets",
+    "d": "Dónde comer cerca de los estadios"
+   }
+  ],
+  "porque": "Taquería de más de 60 años junto a la Plaza México. La especialidad: el campechano de cecina, chicharrón y longaniza.",
+  "momentos": [
+   "desayuno",
+   "comida"
+  ],
+  "opciones": []
+ },
+ {
+  "id": "d27",
+  "nombre": "Parrilla Paraíso",
+  "cocinas": [
+   {
+    "pais": "Uruguaya",
+    "sub": [
+     "Parrilla"
+    ]
+   },
+   {
+    "pais": "Mexicana",
+    "sub": []
+   }
+  ],
+  "fusion": false,
+  "precio": 3,
+  "zona": "Tlalpan",
+  "direccion": "Santa Úrsula 34, Santa Úrsula Xitla",
+  "telefono": "+52 55 7160 0262",
+  "lat": 19.2829156,
+  "lng": -99.1767382,
+  "gmaps": "https://www.google.com/maps/search/?api=1&query=Parrilla+Paraíso&query_place_id=ChIJJ4knLvkBzoUR1uzUafl6Yu4",
+  "google": {
+   "r": 4.3,
+   "n": 3197
+  },
+  "fuentes": [
+   {
+    "n": "Food & Pleasure",
+    "d": "Terrazas para comer cortes"
+   }
+  ],
+  "porque": "Jardín al aire libre con parrilla de sabores de Baja California y Uruguay: tomahawk, rib eye, picaña, choripán. Tiene juegos para niños.",
+  "momentos": [
+   "desayuno",
+   "comida",
+   "cena"
+  ],
+  "opciones": [
+   "ninos"
+  ]
+ },
+ {
+  "id": "d28",
+  "nombre": "Homeslice Pizza",
+  "cocinas": [
+   {
+    "pais": "Estadounidense",
+    "sub": [
+     "Pizza estilo Chicago"
+    ]
+   }
+  ],
+  "fusion": false,
+  "precio": 2,
+  "zona": "Del Valle",
+  "direccion": "Tlacoquemecatl 215, Del Valle",
+  "telefono": "+52 55 8956 7767",
+  "lat": 19.3775982,
+  "lng": -99.1700276,
+  "gmaps": "https://www.google.com/maps/search/?api=1&query=Homeslice+Pizza&query_place_id=ChIJAy1FsO3_0YURk17oAQa7Ahc",
+  "google": {
+   "r": 4.6,
+   "n": 3083
+  },
+  "fuentes": [
+   {
+    "n": "Food & Pleasure",
+    "d": "Pizzas más monchosas de la CDMX"
+   }
+  ],
+  "porque": "Pizza deep dish estilo Chicago y de Nueva York; la de cochinita es de las más comentadas. Brunch los fines de semana.",
+  "momentos": [
+   "desayuno",
+   "comida",
+   "cena"
+  ],
+  "opciones": [
+   "vegetariano"
+  ]
+ },
+ {
+  "id": "d29",
+  "nombre": "Contramar",
+  "cocinas": [
+   {
+    "pais": "Mexicana",
+    "sub": [
+     "Mariscos"
+    ]
+   }
+  ],
+  "fusion": false,
+  "precio": 4,
+  "zona": "Roma Norte",
+  "direccion": "Durango 200, Roma Norte",
+  "telefono": "+52 55 5514 9217",
+  "lat": 19.4195793,
+  "lng": -99.1671526,
+  "gmaps": "https://www.google.com/maps/search/?api=1&query=Contramar&query_place_id=ChIJez8vvy__0YURP0rx5WhEig4",
+  "google": {
+   "r": 4.5,
+   "n": 6884
+  },
+  "fuentes": [
+   {
+    "n": "Guía Michelin",
+    "d": "Bib Gourmand 2026"
+   }
+  ],
+  "porque": "El clásico de mariscos de la Roma: tostadas de atún, pescado a la talla y pastel de fresa. Reserva con anticipación.",
+  "momentos": [
+   "comida"
+  ],
+  "opciones": []
+ }
+];
+const DKEY = 'guia-cdmx-descubrir-v1';
+const SRC = {'Guía Michelin':{e:'⭐',c:'michelin'}, '50 Best':{e:'🏆',c:'best'}, 'Google':{e:'📍',c:'g'}};
+const srcInfo = n => SRC[n] || {e:'🗞️', c:''};
+let discState = {hidden:[]};
+try{ const r=localStorage.getItem(DKEY); if(r) discState = Object.assign({hidden:[]}, JSON.parse(r)); }catch(e){}
+function saveDisc(){ try{ localStorage.setItem(DKEY, JSON.stringify(discState)); }catch(e){} }
+let mode = 'mine';
+const discList = () => DISC.filter(d=>!discState.hidden.includes(d.id) && !places.some(p=>p.discId===d.id || norm(p.nombre)===norm(d.nombre)));
+const dataset = () => mode==='disc' ? discList() : places;
+const PRECIO = {1:'$',2:'$$',3:'$$$',4:'$$$$'};
+const PRECIO_TXT = {1:'Económico',2:'Moderado',3:'Caro',4:'Muy caro'};
+
+/* Clasificación: o = nac (nacional) o int (internacional); e = ícono; subs = subtipos con su ícono */
+const TAX = {
+  'Mexicana':       {o:'nac', e:'🌮', subs:{'Tacos':'🌮','Mariscos':'🦐','Yucateca':'🐷','Oaxaqueña':'🌶️','Tortas':'🥪','Antojitos':'🌽','Desayunos':'🍳','Fonda':'🍲','Cantina':'🍺','Birria':'🐐','Burritos':'🌯','Contemporánea':'🍽️'}},
+  'Japonesa':       {o:'int', e:'🍣', subs:{'Ramen':'🍜','Sushi / nigiri':'🍣','Izakaya':'🏮','Casera / teishoku':'🍱','Teppanyaki':'🔥','Yakiniku':'🥩','Omakase':'🔪'}},
+  'Coreana':        {o:'int', e:'🥢', subs:{'BBQ coreano':'🥩','Casera':'🍲','Ramyeon':'🍜','Kimbap':'🍙','Pollo frito':'🍗'}},
+  'China':          {o:'int', e:'🥡', subs:{'Cantonesa':'🥡','Dim sum':'🥟','Sichuan':'🌶️','Fideos':'🍜','Hot pot':'🍲'}},
+  'Taiwanesa':      {o:'int', e:'🧋', subs:{'Bao':'🥟','Dumplings':'🥟','Fideos':'🍜','Bubble tea':'🧋'}},
+  'Tailandesa':     {o:'int', e:'🍛', subs:{'Curry':'🍛','Street food':'🍢','Fideos':'🍜'}},
+  'Vietnamita':     {o:'int', e:'🍜', subs:{'Pho':'🍜','Banh mi':'🥖'}},
+  'Camboyana':      {o:'int', e:'🥥', subs:{}},
+  'Singapurense':   {o:'int', e:'🦀', subs:{'Hawker':'🍢','Laksa':'🍜'}},
+  'Panasiática':    {o:'int', e:'🥢', subs:{'Fideos':'🍜','Sushi':'🍣','Dim sum':'🥟'}},
+  'India':          {o:'int', e:'🫓', subs:{'Curry':'🍛','Tandoor':'🔥'}},
+  'Italiana':       {o:'int', e:'🍝', subs:{'Pizza':'🍕','Pasta':'🍝','Trattoria':'🍷'}},
+  'Estadounidense': {o:'int', e:'🍔', subs:{'BBQ / ahumados':'🍖','Hamburguesas':'🍔','Pizza estilo Chicago':'🍕','Steakhouse':'🥩','Alitas':'🍗','Brunch':'🥞'}},
+  'Francesa':       {o:'int', e:'🥐', subs:{'Bistró':'🍷','Panadería':'🥖'}},
+  'Española':       {o:'int', e:'🥘', subs:{'Tapas':'🫒','Paella':'🥘','Cocina vasca':'🍷'}},
+  'Peruana':        {o:'int', e:'🐟', subs:{'Cebichería':'🐟','Nikkei':'🍣'}},
+  'Argentina':      {o:'int', e:'🥩', subs:{'Parrilla':'🥩'}},
+  'Libanesa':       {o:'int', e:'🧆', subs:{}},
+  'Mediterránea':   {o:'int', e:'🫒', subs:{}},
+  'Griega':         {o:'int', e:'🐙', subs:{}},
+  'Brasileña':      {o:'int', e:'🍖', subs:{'Rodizio':'🍖'}},
+  'Uruguaya':       {o:'int', e:'🥩', subs:{'Parrilla':'🥩'}},
+  'De autor':       {o:'int', e:'✨', subs:{'Menú de temporada':'🌿','Degustación':'🍽️'}}
+};
+const MOMENTOS = {desayuno:{t:'Desayuno',e:'☀️'}, comida:{t:'Comida',e:'🍽️'}, cena:{t:'Cena',e:'🌙'}};
+const OPCIONES = {vegetariano:{t:'Vegetariano',e:'🥗'}, vegano:{t:'Vegano',e:'🌱'}, singluten:{t:'Sin gluten',e:'🌾'}, ninos:{t:'Para niños',e:'🧒'}, mascotas:{t:'Pet friendly',e:'🐕'}};
+const ORIG = {nac:{t:'Nacional',e:'🌮'}, int:{t:'Internacional',e:'🌍'}};
+const ZONAS = ['Centro Histórico','Roma Norte','Roma Sur','Condesa','Hipódromo','Juárez','Cuauhtémoc','Polanco','Anzures','Escandón','Narvarte','Del Valle','Nápoles','Coyoacán','San Ángel','Tlalpan','Santa María la Ribera','San Rafael','Doctores','Xochimilco','Santa Fe','Lomas de Chapultepec'];
+
+const P = {
+  phone:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/>',
+  globe:'<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+  menu:'<path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2zM22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/>',
+  cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  pin:'<path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
+  nav:'<path d="M3 11l19-9-9 19-2-8-8-2z"/>',
+  note:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/>',
+  ext:'<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>',
+  edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+  trash:'<path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>',
+  check:'<path d="M20 6L9 17l-5-5"/>',
+  clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  x:'<path d="M18 6L6 18M6 6l12 12"/>',
+  search:'<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+  map:'<path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/><path d="M8 2v16M16 6v16"/>',
+  data:'<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.7-4 3-9 3s-9-1.3-9-3"/><path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5"/>',
+  upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>',
+  download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>',
+  compass:'<circle cx="12" cy="12" r="10"/><path d="M16.2 7.8l-2.1 6.3-6.3 2.1 2.1-6.3z"/>',
+  ban:'<circle cx="12" cy="12" r="10"/><path d="M4.9 4.9l14.2 14.2"/>',
+  tag:'<path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L2 12V2h10l8.6 8.6a2 2 0 0 1 0 2.8z"/><circle cx="7" cy="7" r="1.5"/>'
+};
+const ic = n => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${P[n]||''}</svg>`;
+function paintIcons(root=document){ root.querySelectorAll('[data-ic]').forEach(el=>{ el.innerHTML = ic(el.dataset.ic); el.removeAttribute('data-ic'); }); }
+
+/* ---------- datos ---------- */
+const uid = () => Math.random().toString(36).slice(2,10);
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const hasLoc = p => Number.isFinite(p.lat) && Number.isFinite(p.lng);
+const norm = s => String(s||'').toLowerCase().normalize('NFD').replace(/\p{M}/gu,'');
+function toast(t){ const el=document.getElementById('toast'); el.textContent=t; el.classList.add('show'); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove('show'),2600); }
+
+function guessCocinas(txt){
+  const t = norm(txt); if(!t) return [];
+  const out = [];
+  for(const k of Object.keys(TAX)){ if(t.includes(norm(k).slice(0,5))) out.push({pais:k, sub:[]}); }
+  if(/taco|marisc|yucat|torta|desayun/.test(t) && !out.some(c=>c.pais==='Mexicana')) out.push({pais:'Mexicana', sub:[]});
+  if(/ramen/.test(t) && !out.length) out.push({pais:'Japonesa', sub:['Ramen']});
+  return out.length ? out : [{pais: txt.trim(), sub:[]}];
+}
+function migrate(p){
+  if(!Array.isArray(p.cocinas)){
+    const s = SEED.find(x=>x.id===p.id);
+    if(s && Array.isArray(s.cocinas)){ p.cocinas = JSON.parse(JSON.stringify(s.cocinas)); if(p.fusion===undefined) p.fusion = !!s.fusion; }
+    else p.cocinas = guessCocinas(p.cocina||'');
+  }
+  if(p.fusion===undefined) p.fusion = false;
+  delete p.cocina;
+  return p;
+}
+function load(){
+  try{
+    const r = localStorage.getItem(KEY);
+    if(r){
+      const d = JSON.parse(r);
+      if(Array.isArray(d)){
+        const out = d.map(migrate);
+        // agrega los lugares nuevos que llegaron con esta versión, sin tocar tus cambios
+        const ids = new Set(out.map(p=>p.id));
+        SEED.forEach(s=>{ if(!ids.has(s.id) && !out.some(p=>norm(p.nombre)===norm(s.nombre))) out.push(migrate(JSON.parse(JSON.stringify(s)))); });
+        // ajustes puntuales de esta actualización (se aplican una sola vez)
+        try{
+          if(!localStorage.getItem('guia-cdmx-patch-oct11')){
+            const pi = out.find(p=>p.id==='g6'); if(pi) pi.estado='pendiente';
+            localStorage.setItem('guia-cdmx-patch-oct11','1');
+          }
+        }catch(_){}
+        return out;
+      }
+    }
+  }catch(e){}
+  return SEED.map(p=>migrate(JSON.parse(JSON.stringify(p))));
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(places)); }catch(e){ toast('No se pudo guardar en este navegador'); } }
+
+const info = pais => TAX[pais] || {o:'int', e:'🍽️', subs:{}};
+const subEmoji = (pais, s) => (info(pais).subs||{})[s] || info(pais).e;
+function emojisOf(p){
+  const out = [];
+  (p.cocinas||[]).forEach(c=>{ const e = c.sub && c.sub.length ? subEmoji(c.pais,c.sub[0]) : info(c.pais).e; if(!out.includes(e)) out.push(e); });
+  return out.length ? out : ['🍽️'];
+}
+function menusOf(p){
+  const m = Array.isArray(p.menus) ? p.menus.filter(x=>x&&x.u) : [];
+  if(!m.length && p.menu) m.push({t:'Ver menú', u:p.menu});
+  return m;
+}
+const origenesOf = p => new Set((p.cocinas||[]).map(c=>info(c.pais).o));
+const cocinaTxt = p => (p.cocinas||[]).map(c=>c.pais + (c.sub&&c.sub.length?` (${c.sub.join(', ')})`:'')).join(' + ');
+
+let places = load();
+const EMPTY_FILT = {q:'', est:'todos', origen:'', pais:'', sub:'', fusion:false, precio:'', zona:'', momento:'', fuente:''};
+let filt = {...EMPTY_FILT};
+let selected = null, editing = null, draftLoc = null, draftCoc = [], draftMo = [], draftOp = [], pendingImport = null;
+
+/* ---------- mapa ---------- */
+const MAP_OK = !!window.L;
+if(!MAP_OK){
+  document.getElementById('mapNotice').classList.add('show');
+  const noop = new Proxy(function(){},{get:(t,k)=>k==='getZoom'?()=>13:noop, apply:()=>noop});
+  window.L = noop;
+}
+const map = L.map('map',{zoomControl:true}).setView([19.415,-99.165],13);
+const BASES = {
+  'Calles': ()=>L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Tiles &copy; Esri'}),
+  'Gris claro': ()=>L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',{maxZoom:16,attribution:'Tiles &copy; Esri'}),
+  'Satélite': ()=>L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Tiles &copy; Esri'}),
+  'OpenStreetMap': ()=>L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'})
+};
+const baseLayers = {}; for(const k in BASES) baseLayers[k] = BASES[k]();
+let baseName = 'Calles';
+try{ const s=localStorage.getItem('guia-cdmx-base2'); if(s && baseLayers[s]) baseName=s; }catch(e){}
+baseLayers[baseName].addTo(map);
+if(L.control && L.control.layers) L.control.layers(baseLayers,null,{position:'topright',collapsed:true}).addTo(map);
+map.on('baselayerchange', e=>{ try{ localStorage.setItem('guia-cdmx-base2', e.name); }catch(_){} });
+let fails = 0;
+for(const k in baseLayers){
+  baseLayers[k].on && baseLayers[k].on('tileerror',()=>{ if(++fails===8){ const n=document.getElementById('mapNotice'); document.getElementById('mapNoticeTxt').textContent='Este visor bloquea las imágenes del mapa. Ábrelo directamente en Chrome, Safari o Edge, o cambia el estilo del mapa con el botón de capas.'; n.classList.add('show'); setTimeout(()=>n.classList.remove('show'),6000); }});
+  baseLayers[k].on && baseLayers[k].on('tileload',()=>{ fails = 0; });
+}
+const layer = L.layerGroup().addTo(map);
+const markers = new Map();
+let pickMarker = null, labelsOn = false;
+const isPicking = () => document.body.classList.contains('picking');
+map.on('click', e=>{
+  if(isPicking()){ pickMarker && pickMarker.setLatLng(e.latlng); return; }
+  if(sheet.classList.contains('open')) closeSheet();
+});
+map.on('zoomend', ()=>{ const on = map.getZoom()>=16; if(on!==labelsOn){ labelsOn=on; renderMarkers(); } });
+
+function pinHTML(p, extra=''){
+  if(mode==='disc') return `<div class="pin disc ${extra}"><b class="em">${emojisOf(p)[0]}</b><i class="badge">${ic('compass')}</i></div>`;
+  const pend = p.estado==='pendiente';
+  return `<div class="pin ${pend?'pend':''} ${extra}"><b class="em">${emojisOf(p)[0]}</b><i class="badge">${ic(pend?'clock':'check')}</i></div>`;
+}
+function pinIcon(p){
+  return L.divIcon({className:'', html:`<div class="pinwrap">${pinHTML(p, selected===p.id?'sel':'')}</div>`, iconSize:[48,48], iconAnchor:[24,24]});
+}
+function displayPositions(list){
+  const groups = {}, pos = {};
+  list.forEach(p=>{ const k=p.lat.toFixed(4)+','+p.lng.toFixed(4); (groups[k]=groups[k]||[]).push(p); });
+  Object.values(groups).forEach(g=>{
+    if(g.length===1){ pos[g[0].id]=[g[0].lat,g[0].lng]; return; }
+    g.forEach((p,i)=>{ const a=2*Math.PI*i/g.length; pos[p.id]=[p.lat+0.00013*Math.sin(a), p.lng+0.00014*Math.cos(a)]; });
+  });
+  return pos;
+}
+function renderMarkers(){
+  const vs = visible().filter(hasLoc);
+  layer.clearLayers(); markers.clear();
+  const pos = displayPositions(vs);
+  vs.forEach(p=>{
+    const m = L.marker(pos[p.id],{icon:pinIcon(p), title:p.nombre, keyboard:true, riseOnHover:true, zIndexOffset:selected===p.id?500:0});
+    m.bindTooltip(esc(p.nombre),{direction:'top', offset:[0,-20], className:'lbl', permanent:labelsOn});
+    m.on('click',()=>openSheet(p.id,false)); m.addTo(layer); markers.set(p.id,m);
+  });
+}
+function markSelected(prev){
+  for(const id of [prev, selected]){
+    const p = dataset().find(x=>x.id===id), m = markers.get(id);
+    if(p && m){ m.setIcon(pinIcon(p)); m.setZIndexOffset(id===selected?500:0); }
+  }
+  list.querySelectorAll('.item').forEach(b=>b.classList.toggle('active', b.dataset.id===selected));
+}
+
+/* ---------- filtros ---------- */
+function matches(p, skip=[]){
+  const s = new Set(skip);
+  if(mode==='mine' && !s.has('est') && filt.est!=='todos' && p.estado!==filt.est) return false;
+  if(!s.has('fuente') && filt.fuente && !(p.fuentes||[]).some(f=>f.n===filt.fuente)) return false;
+  if(!s.has('origen') && filt.origen && !origenesOf(p).has(filt.origen)) return false;
+  if(!s.has('pais') && filt.pais && !(p.cocinas||[]).some(c=>c.pais===filt.pais)) return false;
+  if(!s.has('sub') && filt.sub && !(p.cocinas||[]).some(c=>c.pais===filt.pais && (c.sub||[]).includes(filt.sub))) return false;
+  if(!s.has('fusion') && filt.fusion && !p.fusion) return false;
+  if(!s.has('precio') && filt.precio && String(p.precio)!==filt.precio) return false;
+  if(!s.has('zona') && filt.zona && p.zona!==filt.zona) return false;
+  if(!s.has('momento') && filt.momento && !(p.momentos||[]).includes(filt.momento)) return false;
+  if(filt.q){
+    const hay = norm([p.nombre,p.porque||'',...(p.fuentes||[]).map(f=>f.n+' '+f.d),p.zona,p.notas,p.direccion,cocinaTxt(p),p.fusion?'fusion':'',...(p.destacados||[]).map(d=>d.n+' '+(d.d||'')),...(p.favoritos||[]).map(d=>d.n+' '+(d.d||''))].join(' '));
+    if(!hay.includes(norm(filt.q.trim()))) return false;
+  }
+  return true;
+}
+const visible = () => dataset().filter(p=>matches(p)).sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'));
+const isDirty = () => filt.q || filt.fuente || filt.est!=='todos' || filt.origen || filt.pais || filt.fusion || filt.precio || filt.zona || filt.momento;
+
+function renderModes(){
+  modes.innerHTML = `<button class="mode" data-mode="mine" aria-pressed="${mode==='mine'}"><span class="em">📍</span><span>Mis lugares<small>${places.length} guardados</small></span></button>
+    <button class="mode disc" data-mode="disc" aria-pressed="${mode==='disc'}"><span class="em">🧭</span><span>Por descubrir<small>${discList().length} sugerencias</small></span></button>`;
+  discBanner.innerHTML = mode==='disc' ? `<div class="discbanner">${ic('compass')}<span>Sugerencias de guías y medios. No son tu lista: si una te interesa, pulsa "La quiero visitar" para pasarla a tus pendientes.${discState.hidden.length?` <a href="#" id="unhide" style="color:inherit">Ver ${discState.hidden.length} descartadas</a>`:''}</span></div>` : '';
+  const u = document.getElementById('unhide'); if(u) u.onclick = e=>{ e.preventDefault(); discState.hidden=[]; saveDisc(); render(); toast('Sugerencias restauradas'); };
+  document.getElementById('lgDisc').style.display = mode==='disc' ? 'flex' : 'none';
+  document.querySelectorAll('.maplegend > span:not(#lgDisc)').forEach(s=>s.style.display = mode==='disc'?'none':'flex');
+  btnAdd.style.display = mode==='disc' ? 'none' : '';
+}
+modes.addEventListener('click', e=>{
+  const b = e.target.closest('[data-mode]'); if(!b || b.dataset.mode===mode) return;
+  mode = b.dataset.mode; filt = {...EMPTY_FILT}; closeSheet(); render();
+  const pts = dataset().filter(hasLoc); if(pts.length>1) map.fitBounds(pts.map(p=>[p.lat,p.lng]),{padding:[40,40],maxZoom:14});
+});
+function renderFilters(){
+  const cnt = (fn, skip) => dataset().filter(p=>matches(p,skip) && fn(p)).length;
+  const est = [['todos','Todos',''],['visitado','Visitados','check'],['pendiente','Pendientes','clock']];
+  let h = `<div class="searchbox">${ic('search')}<input class="search" id="q" type="search" placeholder="Buscar nombre, cocina, platillo, zona…" aria-label="Buscar" value="${esc(filt.q)}"></div>`;
+  if(mode==='mine') h += `<div class="seg" role="group" aria-label="Estado">${est.map(([k,t,i])=>`<button data-est="${k}" aria-pressed="${filt.est===k}">${i?ic(i):''}${t}</button>`).join('')}</div>`;
+  else {
+    const fs = {}; dataset().forEach(p=>(p.fuentes||[]).forEach(f=>fs[f.n]=1));
+    h += `<div class="fgroup"><h3>${ic('compass')}Recomendado por</h3><div class="chips">` + Object.keys(fs).map(k=>[k,cnt(p=>(p.fuentes||[]).some(f=>f.n===k),['fuente'])]).sort((a,b)=>b[1]-a[1]).map(([k,n])=>`<button class="chip" data-fuente="${esc(k)}" aria-pressed="${filt.fuente===k}"><span class="em">${srcInfo(k).e}</span>${esc(k)}<span class="n">${n}</span></button>`).join('') + `</div></div>`;
+  }
+
+  h += `<div class="fgroup"><h3>${ic('tag')}Tipo de cocina</h3><div class="tiles">` +
+    ['nac','int'].map(o=>`<button class="tile" data-origen="${o}" aria-pressed="${filt.origen===o}"><span class="em">${ORIG[o].e}</span><span><strong>${ORIG[o].t}</strong><small>${cnt(p=>origenesOf(p).has(o),['origen','pais','sub'])} lugares</small></span></button>`).join('') + `</div></div>`;
+
+  // nacionalidades presentes
+  const paises = {};
+  dataset().forEach(p=>(p.cocinas||[]).forEach(c=>{ if(!filt.origen || info(c.pais).o===filt.origen) paises[c.pais]=1; }));
+  const plist = Object.keys(paises).map(k=>[k, cnt(p=>(p.cocinas||[]).some(c=>c.pais===k),['pais','sub'])])
+    .filter(([k,n])=>n>0 || filt.pais===k).sort((a,b)=>b[1]-a[1] || a[0].localeCompare(b[0],'es'));
+  if(plist.length){
+    h += `<div class="fgroup"><h3><span class="em">${filt.origen?ORIG[filt.origen].e:'🍴'}</span>${filt.origen==='nac'?'Cocina nacional':'Por nacionalidad'}${filt.pais?'<button class="clear" data-clear="pais">Quitar</button>':''}</h3><div class="chips">` +
+      plist.map(([k,n])=>`<button class="chip" data-pais="${esc(k)}" aria-pressed="${filt.pais===k}"><span class="em">${info(k).e}</span>${esc(k)}<span class="n">${n}</span></button>`).join('') + `</div>`;
+    if(filt.pais){
+      const subs = {};
+      dataset().forEach(p=>(p.cocinas||[]).forEach(c=>{ if(c.pais===filt.pais) (c.sub||[]).forEach(s=>subs[s]=1); }));
+      const slist = Object.keys(subs).map(s=>[s, cnt(p=>(p.cocinas||[]).some(c=>c.pais===filt.pais && (c.sub||[]).includes(s)),['sub'])]).sort((a,b)=>b[1]-a[1]);
+      if(slist.length) h += `<div class="subchips"><div class="chips">` + slist.map(([s,n])=>`<button class="chip" data-sub="${esc(s)}" aria-pressed="${filt.sub===s}"><span class="em">${subEmoji(filt.pais,s)}</span>${esc(s)}<span class="n">${n}</span></button>`).join('') + `</div></div>`;
+    }
+    h += `</div>`;
+  }
+  const nf = cnt(p=>p.fusion,['fusion']);
+  h += `<div class="fgroup"><h3>${ic('tag')}Precio y estilo</h3><div class="chips">` +
+    [1,2,3,4].map(n=>`<button class="chip price" data-precio="${n}" aria-pressed="${filt.precio===String(n)}" title="${PRECIO_TXT[n]}">${PRECIO[n]}</button>`).join('') +
+    `<button class="chip" data-fusion="1" aria-pressed="${filt.fusion}"><span class="em">🔀</span>Fusión<span class="n">${nf}</span></button></div></div>`;
+  if(dataset().some(p=>(p.momentos||[]).length)){
+    h += `<div class="fgroup"><h3>${ic('clock')}Momento del día</h3><div class="chips">` + Object.entries(MOMENTOS).map(([k,m])=>`<button class="chip" data-momento="${k}" aria-pressed="${filt.momento===k}"><span class="em">${m.e}</span>${m.t}<span class="n">${cnt(p=>(p.momentos||[]).includes(k),['momento'])}</span></button>`).join('') + `</div></div>`;
+  }
+  const zonas = [...new Set(dataset().map(p=>p.zona).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
+  h += `<div class="fgroup"><h3>${ic('pin')}Zona</h3><select class="zonesel" id="fZona"><option value="">Todas las zonas</option>${zonas.map(z=>`<option ${filt.zona===z?'selected':''}>${esc(z)}</option>`).join('')}</select></div>`;
+  filters.innerHTML = h;
+  dlZona.innerHTML = [...new Set([...ZONAS,...zonas])].map(v=>`<option value="${esc(v)}">`).join('');
+}
+filters.addEventListener('click', e=>{
+  const b = e.target.closest('button'); if(!b) return;
+  if(b.dataset.est){ filt.est=b.dataset.est; }
+  else if(b.dataset.fuente){ filt.fuente = filt.fuente===b.dataset.fuente ? '' : b.dataset.fuente; }
+  else if(b.dataset.origen){ filt.origen = filt.origen===b.dataset.origen ? '' : b.dataset.origen; filt.pais=''; filt.sub=''; }
+  else if(b.dataset.pais){ filt.pais = filt.pais===b.dataset.pais ? '' : b.dataset.pais; filt.sub=''; }
+  else if(b.dataset.sub){ filt.sub = filt.sub===b.dataset.sub ? '' : b.dataset.sub; }
+  else if(b.dataset.precio){ filt.precio = filt.precio===b.dataset.precio ? '' : b.dataset.precio; }
+  else if(b.dataset.fusion){ filt.fusion = !filt.fusion; }
+  else if(b.dataset.momento){ filt.momento = filt.momento===b.dataset.momento ? '' : b.dataset.momento; }
+  else if(b.dataset.clear==='pais'){ filt.pais=''; filt.sub=''; }
+  else return;
+  render();
+});
+filters.addEventListener('input', e=>{
+  if(e.target.id==='q'){ filt.q=e.target.value; renderMarkers(); renderList(); }
+});
+filters.addEventListener('change', e=>{ if(e.target.id==='fZona'){ filt.zona=e.target.value; render(); } });
+btnReset.onclick=()=>{ filt={...EMPTY_FILT}; render(); };
+
+function renderList(){
+  const vs = visible();
+  const sinLoc = vs.filter(p=>!hasLoc(p)).length;
+  count.textContent = `${vs.length} ${vs.length===1?'lugar':'lugares'}` + (sinLoc?` · ${sinLoc} sin ubicación`:'');
+  resetbar.classList.toggle('dirty', !!isDirty());
+  if(mode==='disc' && !dataset().length){ list.innerHTML = `<div class="empty"><strong>Ya revisaste todas las sugerencias</strong>Las que te interesaron están en tus pendientes.</div>`; return; }
+  if(mode==='mine' && !places.length){ list.innerHTML = `<div class="empty"><strong>Tu guía está vacía</strong>Agrega un lugar o importa tus listas de Google Maps desde "Datos".</div>`; return; }
+  if(!vs.length){ list.innerHTML = `<div class="empty"><strong>Nada coincide</strong>Prueba quitando algún filtro.</div>`; return; }
+  if(mode==='disc'){
+    list.innerHTML = vs.map(p=>`<button class="item ${selected===p.id?'active':''}" data-id="${p.id}">
+      <span class="av disc"><span class="em">${emojisOf(p)[0]}</span><i class="badge">${ic('compass')}</i></span>
+      <span><strong>${esc(p.nombre)}</strong><small>${esc((p.cocinas||[]).map(c=>c.pais).join(' + '))}${p.zona?', '+esc(p.zona):''}</small><span>${(p.fuentes||[]).map(f=>`<span class="src ${srcInfo(f.n).c}">${srcInfo(f.n).e} ${esc(f.n)}</span>`).join('')}</span></span>
+      <span class="price">${PRECIO[p.precio]||''}</span></button>`).join('');
+    return;
+  }
+  list.innerHTML = vs.map(p=>{
+    const pend = p.estado==='pendiente';
+    const paises = (p.cocinas||[]).map(c=>c.pais).join(' + ') || 'Sin clasificar';
+    return `<button class="item ${selected===p.id?'active':''}" data-id="${p.id}">
+      <span class="av ${!hasLoc(p)?'nopin':pend?'pend':''}"><span class="em">${emojisOf(p)[0]}</span><i class="badge">${ic(pend?'clock':'check')}</i></span>
+      <span><strong>${esc(p.nombre)}</strong><small>${esc(paises)}${p.fusion?'<span class="fz"><span class="em">🔀</span>fusión</span>':''}</small><small>${esc(p.zona||'')}${!hasLoc(p)?' · sin ubicación':''}</small></span>
+      <span class="price">${PRECIO[p.precio]||''}</span></button>`;
+  }).join('');
+}
+function render(){ renderModes(); renderFilters(); renderMarkers(); renderList(); }
+list.addEventListener('click',e=>{ const b=e.target.closest('.item'); if(b){ setView('map'); setTimeout(()=>openSheet(b.dataset.id,true),60); }});
+function setView(v){ document.body.classList.toggle('show-list',v==='list'); document.querySelectorAll('.mtabs button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.view===v)); if(v==='map') setTimeout(()=>map.invalidateSize(),50); }
+document.querySelectorAll('.mtabs button').forEach(b=>b.onclick=()=>setView(b.dataset.view));
+
+/* ---------- ficha ---------- */
+function monthsAgo(d){ return (Date.now()-new Date(d+'T12:00'))/2.63e9; }
+function fmtDate(d){ try{ return new Date(d+'T12:00').toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'}); }catch(e){ return d; } }
+function sheetOffset(){
+  if(!sheet.classList.contains('open')) return L.point(0,0);
+  const r = sheet.getBoundingClientRect();
+  return innerWidth<=760 ? L.point(0, r.height/2) : L.point(r.width/2, 0);
+}
+function showOnMap(p, fly){
+  if(!hasLoc(p)) return;
+  const m = markers.get(p.id), ll = m ? m.getLatLng() : L.latLng(p.lat,p.lng);
+  if(fly){ const z = Math.max(map.getZoom(),16); map.flyTo(map.unproject(map.project(ll,z).add(sheetOffset()),z), z, {duration:.6}); }
+  else { const r = sheet.getBoundingClientRect(), mob = innerWidth<=760; map.panInside(ll,{paddingTopLeft:[50,70], paddingBottomRight: mob?[50,r.height+40]:[r.width+50,50]}); }
+}
+function openDiscSheet(p, fly){
+  const dest = `${p.lat},${p.lng}`;
+  const acts = [];
+  if(p.telefono) acts.push(`<a class="act" href="tel:${esc(p.telefono.replace(/[^\d+]/g,''))}">${ic('phone')}Llamar</a>`);
+  acts.push(`<a class="act" href="https://www.google.com/maps/dir/?api=1&destination=${dest}" target="_blank" rel="noopener">${ic('nav')}Llegar</a>`);
+  acts.push(`<a class="act" href="${esc(p.gmaps)}" target="_blank" rel="noopener">${ic('ext')}Fotos y reseñas</a>`);
+  const cz = (p.cocinas||[]).map(c=>`<div class="cz"><span class="em">${info(c.pais).e}</span><div><strong>${esc(c.pais)}</strong><span class="o">${ORIG[info(c.pais).o].t}</span>${c.sub&&c.sub.length?`<div class="chips">${c.sub.map(s=>`<span class="chip"><span class="em">${subEmoji(c.pais,s)}</span>${esc(s)}</span>`).join('')}</div>`:''}</div></div>`).join('');
+  const mo = (p.momentos||[]).map(k=>MOMENTOS[k]?`<span class="pill mo"><span class="em">${MOMENTOS[k].e}</span>${MOMENTOS[k].t}</span>`:'').join('') + (p.opciones||[]).map(k=>OPCIONES[k]?`<span class="pill mo"><span class="em">${OPCIONES[k].e}</span>${OPCIONES[k].t}</span>`:'').join('');
+  sheet.innerHTML = `<div class="sheet-head disc">
+      <div class="hero">${emojisOf(p).slice(0,3).map(e=>`<span class="em">${e}</span>`).join('')}</div>
+      <h2>${esc(p.nombre)}</h2>
+      <button class="close" aria-label="Cerrar ficha" id="sClose">${ic('x')}</button>
+      <div class="meta">
+        <span class="pill disc">${ic('compass')}Por descubrir</span>
+        ${p.precio?`<span class="pill">${PRECIO[p.precio]} ${PRECIO_TXT[p.precio].toLowerCase()}</span>`:''}
+        ${p.zona?`<span class="pill">${ic('pin')}${esc(p.zona)}</span>`:''}
+      </div></div>
+    <div class="actions">${acts.join('')}</div>
+    <div class="sheet-body">
+      <div class="sec"><h3><span class="em">🧭</span>Quién lo recomienda</h3><div class="srclist">
+        ${(p.fuentes||[]).map(f=>`<div class="srcrow"><span class="em">${srcInfo(f.n).e}</span><div><strong>${esc(f.n)}</strong><span class="d">${esc(f.d)}</span></div></div>`).join('')}
+        ${p.google?`<div class="srcrow"><span class="em">📍</span><div><strong>Google Maps</strong><span class="d">${p.google.r} de calificación, ${Number(p.google.n).toLocaleString('es-MX')} reseñas</span></div></div>`:''}
+      </div></div>
+      <div class="sec"><h3><span class="em">💬</span>Por qué ir</h3><p class="porque">${esc(p.porque)}</p></div>
+      <div class="cz-list">${cz}${p.fusion?'<div class="fusion"><span class="em">🔀</span>Cocina de fusión</div>':''}</div>
+      ${mo?`<div class="sec"><h3><span class="em">🕒</span>Cuándo ir</h3><div class="optrow">${mo}</div></div>`:''}
+      ${p.direccion?`<div class="field">${ic('pin')}<div><h3>Dirección</h3><p>${esc(p.direccion)}</p></div></div>`:''}
+    </div>
+    <div class="sheet-foot">
+      <button class="btn small violet" id="dAdd">${ic('plus')}La quiero visitar</button>
+      <span class="spacer"></span>
+      <button class="btn small" id="dHide">${ic('ban')}No me interesa</button>
+    </div>`;
+  sheet.classList.add('open');
+  sheet.querySelector('.sheet-body').scrollTop = 0;
+  requestAnimationFrame(()=>showOnMap(p, fly));
+  sClose.onclick = closeSheet;
+  dAdd.onclick = ()=>{
+    const fuente = (p.fuentes||[]).map(f=>`${f.n} (${f.d})`).join('; ');
+    const rec = {id:uid(), discId:p.id, nombre:p.nombre, estado:'pendiente', cocinas:JSON.parse(JSON.stringify(p.cocinas||[])), fusion:!!p.fusion,
+      precio:p.precio||'', zona:p.zona||'', direccion:p.direccion||'', telefono:p.telefono||'', web:'', gmaps:p.gmaps||'', lat:p.lat, lng:p.lng,
+      momentos:[...(p.momentos||[])], opciones:[...(p.opciones||[])], reserva:'', notas:`Recomendado por: ${fuente}.\n${p.porque||''}`, fuente, destacados:[], favoritos:[]};
+    places.push(rec); save(); closeSheet(); render(); toast(`${p.nombre} pasó a tus pendientes`);
+  };
+  dHide.onclick = ()=>{ discState.hidden.push(p.id); saveDisc(); closeSheet(); render(); toast('Sugerencia descartada'); };
+}
+function openSheet(id, fly){
+  const p = dataset().find(x=>x.id===id); if(!p) return;
+  const prev = selected; selected = id; markSelected(prev);
+  if(mode==='disc') return openDiscSheet(p, fly);
+  const pend = p.estado==='pendiente';
+  const link = (u,t)=>`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(t||u.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,''))}</a>`;
+  const field = (i,t,html)=> html?`<div class="field">${ic(i)}<div><h3>${t}</h3>${html}</div></div>`:'';
+  const dest = hasLoc(p)?`${p.lat},${p.lng}`:encodeURIComponent(p.nombre+' CDMX');
+  const acts = [];
+  if(p.telefono) acts.push(`<a class="act" href="tel:${esc(p.telefono.replace(/[^\d+]/g,''))}">${ic('phone')}Llamar</a>`);
+  if(p.web) acts.push(`<a class="act" href="${esc(p.web)}" target="_blank" rel="noopener">${ic('globe')}Web</a>`);
+  const menus = menusOf(p);
+  if(menus.length) acts.push(`<a class="act" href="${esc(menus[0].u)}" target="_blank" rel="noopener">${ic('menu')}Menú</a>`);
+  acts.push(`<a class="act" href="https://www.google.com/maps/dir/?api=1&destination=${dest}" target="_blank" rel="noopener">${ic('nav')}Llegar</a>`);
+  if(p.gmaps) acts.push(`<a class="act" href="${esc(p.gmaps)}" target="_blank" rel="noopener">${ic('ext')}Fotos y reseñas</a>`);
+  let menu='';
+  if(menus.length||p.menuFecha){
+    const old = p.menuFecha && monthsAgo(p.menuFecha)>6;
+    menu = (menus.length?`<div class="menus">${menus.map(m=>`<a href="${esc(m.u)}" target="_blank" rel="noopener">${ic('menu')}${esc(m.t)}</a>`).join('')}</div>`:'<p>Sin enlace</p>') + (p.menuFecha?`<p class="note ${old?'stale':''}" style="margin-top:6px">Revisado el ${fmtDate(p.menuFecha)}${old?', puede haber cambiado':''}</p>`:'<p class="note">Sin fecha de revisión</p>');
+  }
+  const dishRow = d=>`<div class="dish"><span class="em">${esc(d.e||'🍽️')}</span><div><strong>${esc(d.n)}</strong>${d.d?`<span class="d">${esc(d.d)}</span>`:''}</div><span class="pr">${d.p?'$'+esc(d.p):''}</span></div>`;
+  const favs = (p.favoritos||[]).length
+    ? `<div class="sec fav"><h3><span class="em">❤️</span>Favoritos de San</h3>${p.favoritos.map(dishRow).join('')}</div>`
+    : (p.estado==='visitado' ? `<div class="sec fav"><h3><span class="em">❤️</span>Favoritos de San</h3><p class="fav-empty">Aún no anotas tus favoritos de aquí. Agrégalos con "Editar".</p></div>` : '');
+  const dishes = (p.destacados||[]).length ? `<div class="sec"><h3><span class="em">⭐</span>Recomendaciones encontradas</h3>${p.destacados.map(d=>`<div class="dish"><span class="em">${esc(d.e||'🍽️')}</span><div><strong>${esc(d.n)}</strong>${d.d?`<span class="d">${esc(d.d)}</span>`:''}</div><span class="pr">${d.p?'$'+esc(d.p):''}</span></div>`).join('')}${p.fuente?`<p class="small-note">Fuente: ${esc(p.fuente)}</p>`:''}</div>` : '';
+  const mo = (p.momentos||[]).map(k=>MOMENTOS[k]?`<span class="pill mo"><span class="em">${MOMENTOS[k].e}</span>${MOMENTOS[k].t}</span>`:'').join('');
+  const op = (p.opciones||[]).map(k=>OPCIONES[k]?`<span class="pill mo"><span class="em">${OPCIONES[k].e}</span>${OPCIONES[k].t}</span>`:'').join('');
+  const cz = (p.cocinas||[]).map(c=>`<div class="cz"><span class="em">${info(c.pais).e}</span><div><strong>${esc(c.pais)}</strong><span class="o">${ORIG[info(c.pais).o].t}</span>${c.sub&&c.sub.length?`<div class="chips">${c.sub.map(s=>`<span class="chip"><span class="em">${subEmoji(c.pais,s)}</span>${esc(s)}</span>`).join('')}</div>`:''}</div></div>`).join('');
+  sheet.innerHTML = `<div class="sheet-head ${pend?'pend':''}">
+      <div class="hero">${emojisOf(p).slice(0,3).map(e=>`<span class="em">${e}</span>`).join('')}</div>
+      <h2>${esc(p.nombre)}</h2>
+      <button class="close" aria-label="Cerrar ficha" id="sClose">${ic('x')}</button>
+      <div class="meta">
+        <span class="pill ${pend?'pend':'vis'}">${ic(pend?'clock':'check')}${pend?'Pendiente':'Visitado'}</span>
+        ${p.precio?`<span class="pill">${PRECIO[p.precio]} ${PRECIO_TXT[p.precio].toLowerCase()}</span>`:''}
+        ${p.zona?`<span class="pill">${ic('pin')}${esc(p.zona)}</span>`:''}
+      </div></div>
+    <div class="actions">${acts.join('')}</div>
+    <div class="sheet-body">
+      <div class="cz-list">${cz || '<p style="margin:0;color:var(--muted)">Sin tipo de cocina. Usa "Editar" para clasificarlo.</p>'}${p.fusion?'<div class="fusion"><span class="em">🔀</span>Cocina de fusión</div>':''}</div>
+      ${favs}
+      ${dishes}
+      ${(mo||op||p.precioPersona)?`<div class="sec"><h3><span class="em">🕒</span>Cuándo ir y cuánto</h3>${mo||op?`<div class="optrow">${mo}${op}</div>`:''}${p.precioPersona?`<p style="margin:10px 0 0"><strong>Por persona:</strong> ${esc(p.precioPersona)}</p>`:''}</div>`:''}
+      ${field('pin','Dirección',p.direccion?`<p>${esc(p.direccion)}</p>`:(!hasLoc(p)?'<p>Aún sin ubicación. Usa "Editar" para elegirla en el mapa.</p>':''))}
+      ${field('phone','Teléfono',p.telefono?`<a href="tel:${esc(p.telefono.replace(/[^\d+]/g,''))}">${esc(p.telefono)}</a>`:'')}
+      ${field('globe','Página web',p.web?link(p.web):'')}
+      ${field('menu','Menús',menu)}
+      ${field('cal','Cómo reservar',p.reserva?`<p>${esc(p.reserva)}</p>`:'')}
+      ${field('note','Notas',p.notas?`<p>${esc(p.notas)}</p>`:'')}
+    </div>
+    <div class="sheet-foot">
+      <button class="btn small" id="sEdit">${ic('edit')}Editar</button>
+      <span class="spacer"></span>
+      <button class="btn small danger" id="sDel">${ic('trash')}Eliminar</button>
+    </div>`;
+  sheet.classList.add('open');
+  sheet.querySelector('.sheet-body').scrollTop = 0;
+  requestAnimationFrame(()=>showOnMap(p, fly));
+  sClose.onclick=closeSheet; sEdit.onclick=()=>openEdit(p.id);
+  sDel.onclick=()=>{ if(confirm(`¿Eliminar "${p.nombre}" de tu guía?`)){ places=places.filter(x=>x.id!==p.id); save(); closeSheet(); render(); toast('Lugar eliminado'); } };
+}
+function closeSheet(){ sheet.classList.remove('open'); const prev=selected; selected=null; markSelected(prev); }
+
+/* ---------- formulario ---------- */
+function parseCoords(url){
+  if(!url) return null;
+  let u = String(url); try{ u = decodeURIComponent(u.replace(/\+/g,' ')); }catch(e){}
+  const pats = [/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/, /[?&](?:q|query|ll|sll|destination|daddr|center)=(?:loc:)?\s*(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/, /@(-?\d+\.\d+),(-?\d+\.\d+)/, /^\s*(-?\d{1,2}\.\d+)\s*,\s*(-?\d{2,3}\.\d+)\s*$/];
+  let m = null; for(const r of pats){ m = u.match(r); if(m) break; }
+  if(!m) return null;
+  const lat=+m[1], lng=+m[2];
+  return (lat>14&&lat<33&&lng<-86&&lng>-118)?{lat,lng}:null;
+}
+function updateLocStatus(msg){
+  locStatus.textContent = msg || (draftLoc ? `Ubicación lista: ${draftLoc.lat.toFixed(5)}, ${draftLoc.lng.toFixed(5)}. Puedes revisarla con "Elegir en el mapa".` : 'Sin ubicación todavía. Pega un enlace de Google Maps o elige el punto en el mapa.');
+}
+function renderCzEditor(){
+  const sel = new Set(draftCoc.map(c=>c.pais));
+  const chip = k => `<button type="button" class="chip" data-tp="${esc(k)}" aria-pressed="${sel.has(k)}"><span class="em">${info(k).e}</span>${esc(k)}</button>`;
+  const all = [...new Set([...Object.keys(TAX), ...draftCoc.map(c=>c.pais)])];
+  czNac.innerHTML = all.filter(k=>info(k).o==='nac').map(chip).join('');
+  czInt.innerHTML = all.filter(k=>info(k).o==='int').map(chip).join('');
+  subEditors.innerHTML = draftCoc.map((c,i)=>{
+    const subs = [...new Set([...Object.keys(info(c.pais).subs||{}), ...(c.sub||[])])];
+    return `<div class="subed"><h4><span class="em">${info(c.pais).e}</span>${esc(c.pais)}: ¿qué tipo?</h4>
+      <div class="chips">${subs.map(s=>`<button type="button" class="chip" data-ts="${i}" data-s="${esc(s)}" aria-pressed="${(c.sub||[]).includes(s)}"><span class="em">${subEmoji(c.pais,s)}</span>${esc(s)}</button>`).join('') || '<span style="font-size:13px;color:var(--muted)">Sin subtipos sugeridos</span>'}</div>
+      <div class="addrow"><input data-ni="${i}" placeholder="Otro subtipo"><button type="button" data-as="${i}">${ic('plus')}Agregar</button></div></div>`;
+  }).join('');
+}
+czEditor.addEventListener('click', e=>{
+  const b = e.target.closest('button'); if(!b) return;
+  if(b.dataset.tp){ const k=b.dataset.tp, i=draftCoc.findIndex(c=>c.pais===k); if(i>=0) draftCoc.splice(i,1); else draftCoc.push({pais:k,sub:[]}); renderCzEditor(); }
+  else if(b.dataset.ts!==undefined){ const c=draftCoc[+b.dataset.ts], s=b.dataset.s; c.sub = (c.sub||[]).includes(s) ? c.sub.filter(x=>x!==s) : [...(c.sub||[]), s]; renderCzEditor(); }
+  else if(b.dataset.as!==undefined){ addSub(+b.dataset.as); }
+  else if(b.id==='addPais'){ addPais(); }
+});
+czEditor.addEventListener('keydown', e=>{
+  if(e.key!=='Enter') return;
+  if(e.target.id==='newPais'){ e.preventDefault(); addPais(); }
+  else if(e.target.dataset.ni!==undefined){ e.preventDefault(); addSub(+e.target.dataset.ni); }
+});
+function addPais(){ const v=newPais.value.trim(); if(!v) return; const k=Object.keys(TAX).find(x=>norm(x)===norm(v))||v; if(!draftCoc.some(c=>c.pais===k)) draftCoc.push({pais:k,sub:[]}); newPais.value=''; renderCzEditor(); }
+function addSub(i){ const inp=czEditor.querySelector(`[data-ni="${i}"]`), v=inp&&inp.value.trim(); if(!v) return; const c=draftCoc[i]; if(!(c.sub||[]).includes(v)) c.sub=[...(c.sub||[]), v]; renderCzEditor(); }
+
+function renderMoOp(){
+  moEd.innerHTML = Object.entries(MOMENTOS).map(([k,m])=>`<button type="button" class="chip" data-mo="${k}" aria-pressed="${draftMo.includes(k)}"><span class="em">${m.e}</span>${m.t}</button>`).join('');
+  opEd.innerHTML = Object.entries(OPCIONES).map(([k,m])=>`<button type="button" class="chip" data-op="${k}" aria-pressed="${draftOp.includes(k)}"><span class="em">${m.e}</span>${m.t}</button>`).join('');
+}
+dlgEdit.addEventListener('click', e=>{
+  const b = e.target.closest('button'); if(!b) return;
+  if(b.dataset.mo){ const k=b.dataset.mo; draftMo = draftMo.includes(k)?draftMo.filter(x=>x!==k):[...draftMo,k]; renderMoOp(); }
+  if(b.dataset.op){ const k=b.dataset.op; draftOp = draftOp.includes(k)?draftOp.filter(x=>x!==k):[...draftOp,k]; renderMoOp(); }
+});
+function parseMenus(t){
+  return t.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{ const i=l.lastIndexOf('|'); if(i<0) return {t:'Ver menú', u:l}; return {t:l.slice(0,i).trim()||'Ver menú', u:l.slice(i+1).trim()}; }).filter(m=>/^https?:\/\//.test(m.u));
+}
+function parseDest(t){
+  return t.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{
+    const [a,d='',pr=''] = l.split('|').map(x=>x.trim());
+    const m = a.match(/^(\p{Extended_Pictographic}[\uFE0F\u200D\p{Extended_Pictographic}]*)\s*(.*)$/u);
+    return {e: m?m[1]:'🍽️', n: m?m[2]:a, d, p: pr.replace(/[^\d.]/g,'')};
+  }).filter(x=>x.n);
+}
+function openEdit(id){
+  editing = id ? places.find(p=>p.id===id) : null;
+  const fm = formEdit; fm.reset();
+  editTitle.textContent = editing?'Editar lugar':'Agregar lugar';
+  if(editing) for(const k of ['nombre','estado','precio','zona','gmaps','direccion','telefono','web','menuFecha','precioPersona','fuente','reserva','notas']) if(fm.elements[k]) fm.elements[k].value = editing[k]??'';
+  tMenus.value = editing ? menusOf(editing).map(m=>`${m.t} | ${m.u}`).join('\n') : '';
+  const toLines = arr => (arr||[]).map(d=>[`${d.e||''} ${d.n}`.trim(), d.d||'', d.p||''].join(' | ').replace(/( \| )+$/,'')).join('\n');
+  tDest.value = editing ? toLines(editing.destacados) : '';
+  tFav.value = editing ? toLines(editing.favoritos) : '';
+  draftMo = editing ? [...(editing.momentos||[])] : []; draftOp = editing ? [...(editing.opciones||[])] : [];
+  renderMoOp();
+  draftLoc = editing&&hasLoc(editing)?{lat:editing.lat,lng:editing.lng}:null;
+  draftCoc = editing ? JSON.parse(JSON.stringify(editing.cocinas||[])) : [];
+  chkFusion.checked = !!(editing && editing.fusion);
+  renderCzEditor(); updateLocStatus(); dlgEdit.showModal();
+}
+formEdit.elements.gmaps.addEventListener('input',e=>{
+  const v=e.target.value.trim(), c=parseCoords(v);
+  if(c){ draftLoc=c; updateLocStatus(`Ubicación tomada del enlace: ${c.lat.toFixed(5)}, ${c.lng.toFixed(5)}. Puedes revisarla con "Elegir en el mapa".`); }
+  else if(v) updateLocStatus('Este enlace no trae coordenadas (pasa con los enlaces cortos maps.app.goo.gl). Usa "Elegir en el mapa" y coloca el pin tú.');
+  else updateLocStatus();
+});
+function startPick(){
+  dlgEdit.close();
+  if(sheet.classList.contains('open')) closeSheet();
+  setView('map'); document.body.classList.add('picking');
+  const start = draftLoc ? L.latLng(draftLoc.lat,draftLoc.lng) : map.getCenter();
+  map.setView(start, Math.max(map.getZoom(),17));
+  pickMarker = L.marker(start,{draggable:true, autoPan:true, zIndexOffset:2000, icon:L.divIcon({className:'', html:'<div class="pickpin"></div>', iconSize:[36,42], iconAnchor:[18,42]})}).addTo(map);
+}
+function endPick(){ document.body.classList.remove('picking'); if(pickMarker){ map.removeLayer(pickMarker); pickMarker=null; } }
+btnPick.onclick = startPick;
+pickOk.onclick = ()=>{ const ll=pickMarker.getLatLng(); draftLoc={lat:+ll.lat.toFixed(6),lng:+ll.lng.toFixed(6)}; endPick(); updateLocStatus(); dlgEdit.showModal(); };
+pickCancel.onclick = ()=>{ endPick(); dlgEdit.showModal(); };
+editCancel.onclick = ()=>dlgEdit.close();
+formEdit.addEventListener('submit',()=>{
+  const fd = Object.fromEntries(new FormData(formEdit));
+  const rec = {...(editing||{id:uid()}), ...fd, precio: fd.precio?+fd.precio:'', nombre: fd.nombre.trim(),
+    cocinas: draftCoc.map(c=>({pais:c.pais, sub:[...(c.sub||[])]})), fusion: chkFusion.checked,
+    menus: parseMenus(tMenus.value), destacados: parseDest(tDest.value), favoritos: parseDest(tFav.value), momentos:[...draftMo], opciones:[...draftOp]};
+  delete rec.menu;
+  if(draftLoc){ rec.lat=draftLoc.lat; rec.lng=draftLoc.lng; } else { delete rec.lat; delete rec.lng; }
+  if(editing) places = places.map(p=>p.id===rec.id?rec:p); else places.push(rec);
+  save(); render(); openSheet(rec.id,true); toast(editing?'Cambios guardados':'Lugar agregado');
+});
+btnAdd.onclick=()=>openEdit(null);
+
+/* ---------- importar y exportar ---------- */
+btnMenu.onclick=()=>dlgMenu.showModal(); menuClose.onclick=()=>dlgMenu.close();
+function download(name, text, type){
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type})); a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+function parseCSV(text){
+  const rows=[]; let row=[], cur='', q=false; text=text.replace(/^\uFEFF/,'');
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=c; }
+    else if(c==='"') q=true;
+    else if(c===','){ row.push(cur); cur=''; }
+    else if(c==='\n'||c==='\r'){ if(c==='\r'&&text[i+1]==='\n') i++; row.push(cur); rows.push(row); row=[]; cur=''; }
+    else cur+=c;
+  }
+  if(cur||row.length){ row.push(cur); rows.push(row); }
+  return rows.filter(r=>r.some(x=>x.trim()));
+}
+mImportTakeout.onclick=()=>fileCsv.click();
+fileCsv.onchange=async e=>{
+  const file=e.target.files[0]; e.target.value=''; if(!file) return;
+  const rows=parseCSV(await file.text()); if(rows.length<2){ toast('El archivo no tiene lugares'); return; }
+  const h=rows[0].map(x=>x.trim().toLowerCase()); const col=(...n)=>h.findIndex(x=>n.includes(x));
+  const iT=col('title','título','titulo','nombre'), iN=col('note','nota','notas'), iU=col('url'), iC=col('comment','comentario');
+  if(iT<0){ toast('No encontré la columna de nombre (Title)'); return; }
+  pendingImport = rows.slice(1).map(r=>({t:r[iT]?.trim(), n:[r[iN],r[iC]].filter(x=>x&&x.trim()).join('\n'), u:r[iU]?.trim()})).filter(x=>x.t);
+  importInfo.textContent=`Encontré ${pendingImport.length} lugares en "${file.name}".`;
+  importEstado.value = /visit|restaur/i.test(file.name)?'visitado':'pendiente';
+  dlgMenu.close(); dlgImport.showModal();
+};
+importCancel.onclick=()=>{ pendingImport=null; dlgImport.close(); };
+importGo.onclick=()=>{
+  if(!pendingImport) return;
+  const est=importEstado.value; let added=0, skipped=0;
+  pendingImport.forEach(x=>{
+    if(places.some(p=>p.nombre.toLowerCase()===x.t.toLowerCase())){ skipped++; return; }
+    const rec={id:uid(), nombre:x.t, estado:est, notas:x.n||'', gmaps:x.u||'', cocinas:[], fusion:false};
+    const c=parseCoords(x.u); if(c){ rec.lat=c.lat; rec.lng=c.lng; }
+    places.push(rec); added++;
+  });
+  pendingImport=null; save(); render(); toast(`${added} importados${skipped?`, ${skipped} ya estaban`:''}`);
+};
+mImportJson.onclick=()=>fileJson.click();
+fileJson.onchange=async e=>{
+  const file=e.target.files[0]; e.target.value=''; if(!file) return;
+  try{
+    const d=JSON.parse(await file.text()); const arr=Array.isArray(d)?d:d.lugares; if(!Array.isArray(arr)) throw 0;
+    if(!confirm(`Esto reemplaza tu guía actual con ${arr.length} lugares. ¿Continuar?`)) return;
+    places = arr.map(p=>migrate({id:p.id||uid(), ...p, lat:p.lat!=null&&p.lat!==''?+p.lat:undefined, lng:p.lng!=null&&p.lng!==''?+p.lng:undefined, precio:p.precio?+p.precio:''}));
+    save(); closeSheet(); render(); dlgMenu.close(); toast('Guía restaurada');
+  }catch(err){ toast('Ese archivo no es un respaldo válido'); }
+};
+mExportJson.onclick=()=>download(`guia-cdmx-respaldo-${new Date().toISOString().slice(0,10)}.json`, JSON.stringify({version:3,lugares:places},null,1),'application/json');
+mExportMyMaps.onclick=()=>{
+  const orig = p => { const s=origenesOf(p); return s.size===2?'Nacional e internacional':s.has('nac')?'Nacional':s.has('int')?'Internacional':''; };
+  const cols=[['Nombre','nombre'],['Estado',p=>p.estado==='visitado'?'Visitado':'Pendiente'],['Origen',orig],['Cocina principal',p=>(p.cocinas[0]||{}).pais||''],['Cocinas',cocinaTxt],['Fusión',p=>p.fusion?'Sí':'No'],['Precio',p=>PRECIO[p.precio]||''],['Zona','zona'],['Dirección','direccion'],['Teléfono','telefono'],['Web','web'],['Menú',p=>(menusOf(p)[0]||{}).u||''],['Menú revisado',p=>p.menuFecha||''],['Favoritos de San',p=>(p.favoritos||[]).map(d=>d.n).join(', ')],['Recomendaciones encontradas',p=>(p.destacados||[]).map(d=>d.n).join(', ')],['Momentos',p=>(p.momentos||[]).map(k=>(MOMENTOS[k]||{}).t).join(', ')],['Precio por persona',p=>p.precioPersona||''],['Cómo reservar','reserva'],['Notas','notas'],['Google Maps','gmaps'],['Latitud','lat'],['Longitud','lng']];
+  const cell=v=>`"${String(v??'').replace(/"/g,'""')}"`;
+  const ok=places.filter(hasLoc), faltan=places.length-ok.length;
+  const csv='\uFEFF'+[cols.map(c=>cell(c[0])).join(','),...ok.map(p=>cols.map(c=>cell(typeof c[1]==='function'?c[1](p):p[c[1]])).join(','))].join('\r\n');
+  download('guia-cdmx-mymaps.csv',csv,'text/csv;charset=utf-8');
+  if(faltan) toast(`${faltan} lugares sin ubicación no se incluyeron`);
+};
+mClear.onclick=()=>{ if(confirm('¿Borrar todos los lugares de la guía? Descarga un respaldo antes si lo quieres conservar.')){ places=[]; save(); closeSheet(); render(); dlgMenu.close(); } };
+
+paintIcons();
+save();
+render();
+const withLoc = places.filter(hasLoc);
+if(withLoc.length>1) map.fitBounds(withLoc.map(p=>[p.lat,p.lng]),{padding:[40,40],maxZoom:15});
+</script>
+</body>
+</html>
